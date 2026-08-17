@@ -1,7 +1,7 @@
 # Garmin Connect IQ store release
 
 Shared release process for dcltdw's Garmin apps (watch faces / apps). Imported
-into a Garmin repo via `@~/Github/dcltdw/claude/garmin-release.md`. Each repo's
+into a Garmin repo via `@~/.claude/dcltdw/garmin-release.md`. Each repo's
 CLAUDE.md adds a project supplement (signing-key path, device list, store-copy
 location, …) below the import.
 
