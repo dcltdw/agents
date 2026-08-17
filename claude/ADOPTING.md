@@ -33,6 +33,45 @@ The script is idempotent and does four things:
   generally don't surface hook stderr, so in that exact scenario the warning
   itself is invisible and the push goes through unscanned with nothing shown.
 
+**If the `claude` CLI isn't on your `PATH` — e.g. a VS Code-only install.**
+The VS Code extension ships the CLI *inside the extension* and never adds it
+to `PATH`, so "is `claude` on `PATH`" is not the same question as "can I run
+`claude`". `install.sh` resolves the binary rather than requiring `PATH`, in
+this order: `$CLAUDE_BIN`, then `PATH`, then the newest
+`~/.vscode/extensions/anthropic.claude-code-*/resources/native-binary/claude`.
+On a layout it doesn't know about (JetBrains, a native installer under
+`~/.local/bin`), point it at the binary yourself:
+
+    CLAUDE_BIN=/path/to/claude ./install.sh
+
+If it finds no usable binary it still re-points the `~/.claude/dcltdw`
+symlink — rules delivery is the more important half and is correct on its own
+— but the plugin marketplace is then left pointing wherever it pointed
+before. That half-migrated state is exactly what used to pass silently, so the
+script now names the inconsistency, prints the `CLAUDE_BIN` remedy, and
+**exits non-zero**. Anything that runs `install.sh` unattended should check
+its exit status.
+
+**To verify a machine without changing it:**
+
+    ./install.sh --check
+
+It makes no writes — no symlink, no `git config --global <name> <value>`, no
+mutating `claude plugin` subcommand; it only reads (`readlink`, `git config
+--global --get`, `claude plugin marketplace list`). It checks the four things
+an install has to get right — the `~/.claude/dcltdw` symlink resolves,
+`~/.claude/CLAUDE.md` imports rules that are actually readable through it, the
+`dcltdw` plugin marketplace points at the same clone the symlink does, and
+`core.hooksPath` resolves to a usable `pre-push` hook — and exits non-zero
+naming any that don't. It also reports which `claude` binary it resolved,
+which is the first thing you want when the plugin line looks wrong. A
+marketplace pointing somewhere other than the symlink's clone is the
+half-migration above. A custom `core.hooksPath` (see below) is reported as a
+note, not a failure, since `install.sh` deliberately never overrides one.
+
+An unrecognised argument is a usage error: the script prints usage and exits
+**2**, so a typo (`--chekc`) can never be mistaken for "run the install".
+
 **Setting `core.hooksPath` globally is a real trade-off — read this before
 running `install.sh`:**
 
