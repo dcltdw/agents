@@ -56,14 +56,21 @@ its exit status.
 
     ./install.sh --check
 
-Read-only. It checks the four things an install has to get right — the
-`~/.claude/dcltdw` symlink resolves, `~/.claude/CLAUDE.md` imports rules that
-are actually readable through it, the `dcltdw` plugin marketplace points at
-the same clone the symlink does, and `core.hooksPath` resolves to a usable
-`pre-push` hook — and exits non-zero naming any that don't. A marketplace
-pointing somewhere other than the symlink's clone is the half-migration
-above. A custom `core.hooksPath` (see below) is reported as a note, not a
-failure, since `install.sh` deliberately never overrides one.
+It makes no writes — no symlink, no `git config --global <name> <value>`, no
+mutating `claude plugin` subcommand; it only reads (`readlink`, `git config
+--global --get`, `claude plugin marketplace list`). It checks the four things
+an install has to get right — the `~/.claude/dcltdw` symlink resolves,
+`~/.claude/CLAUDE.md` imports rules that are actually readable through it, the
+`dcltdw` plugin marketplace points at the same clone the symlink does, and
+`core.hooksPath` resolves to a usable `pre-push` hook — and exits non-zero
+naming any that don't. It also reports which `claude` binary it resolved,
+which is the first thing you want when the plugin line looks wrong. A
+marketplace pointing somewhere other than the symlink's clone is the
+half-migration above. A custom `core.hooksPath` (see below) is reported as a
+note, not a failure, since `install.sh` deliberately never overrides one.
+
+An unrecognised argument is a usage error: the script prints usage and exits
+**2**, so a typo (`--chekc`) can never be mistaken for "run the install".
 
 **Setting `core.hooksPath` globally is a real trade-off — read this before
 running `install.sh`:**

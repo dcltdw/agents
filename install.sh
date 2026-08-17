@@ -58,14 +58,40 @@ resolve_claude() {
   fi
   command -v claude 2>/dev/null && return 0
   # Several extension versions coexist and the newest is the one to use, so
-  # sort by version, not lexically (1.10.0 must beat 1.2.3).
-  local c
-  c="$(ls -d "$HOME"/.vscode/extensions/anthropic.claude-code-*/resources/native-binary/claude 2>/dev/null | sort -V | tail -1 || true)"
-  if [ -n "$c" ] && [ -x "$c" ]; then
-    printf '%s\n' "$c"
-    return 0
-  fi
+  # sort by version, not lexically (1.10.0 must beat 1.2.3). Walk the matches
+  # newest-first and take the first *executable* one, rather than testing only
+  # the newest: a half-installed or broken newest version must not mask an
+  # older one that still works.
+  local candidates c
+  candidates="$(ls -d "$HOME"/.vscode/extensions/anthropic.claude-code-*/resources/native-binary/claude 2>/dev/null | sort -Vr || true)"
+  [ -n "$candidates" ] || return 1
+  while IFS= read -r c; do
+    if [ -n "$c" ] && [ -x "$c" ]; then
+      printf '%s\n' "$c"
+      return 0
+    fi
+  done <<EOF
+$candidates
+EOF
   return 1
+}
+
+# True if two directory paths name the same directory. Compares the literal
+# strings first, then canonicalises *both* sides. Canonicalising both is the
+# only comparison that holds regardless of which form each side happens to be
+# recorded in: `$REPO_DIR` and the registered marketplace path are logical
+# (whatever path install.sh was invoked through), while a resolved symlink is
+# physical — so on the common layout where ~/Github is itself a symlink onto
+# another volume, comparing one against the other would report a bogus
+# mismatch. Switching linked_repo() to a logical `pwd` alone would not fix
+# that: it would only work when both sides were recorded through the same
+# path spelling.
+same_dir() {
+  [ "$1" = "$2" ] && return 0
+  local a b
+  a="$(cd "$1" 2>/dev/null && pwd -P || true)"
+  b="$(cd "$2" 2>/dev/null && pwd -P || true)"
+  [ -n "$a" ] && [ "$a" = "$b" ]
 }
 
 # Extracts the registered path of the "dcltdw" marketplace. Handles both the
@@ -169,6 +195,7 @@ run_check() {
   bin="$(resolve_claude || true)"
   mp="$(marketplace_path "$bin" || true)"
   lrepo="$(linked_repo || true)"
+  echo "  note  claude    ${bin:-<not found — set CLAUDE_BIN to point at it>}"
   if [ -z "$mp" ]; then
     if [ -z "$bin" ]; then
       echo "  FAIL  plugin    'dcltdw' marketplace not registered, and no 'claude' CLI to ask" >&2
@@ -177,7 +204,7 @@ run_check() {
       echo "  FAIL  plugin    'dcltdw' marketplace is not registered — run ./install.sh" >&2
     fi
     rc=1
-  elif [ -n "$lrepo" ] && [ "$mp" != "$lrepo" ]; then
+  elif [ -n "$lrepo" ] && ! same_dir "$mp" "$lrepo"; then
     echo "  FAIL  plugin    'dcltdw' marketplace points at $mp, but $LINK points into $lrepo" >&2
     echo "                  (half-migrated: re-run ./install.sh from $lrepo)" >&2
     rc=1
