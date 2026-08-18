@@ -6,8 +6,8 @@ This repo ships `claude/` two ways at once: as the `dcltdw` plugin
 `~/.claude/dcltdw` symlink that `install.sh` creates. Those two delivery
 paths behave differently:
 
-- `claude/AGENTS.md` and `claude/garmin-release.md` reach an installed
-  machine live, through the symlink — a `git pull` alone is enough.
+- `claude/AGENTS.md` reaches an installed machine live, through the
+  symlink — a `git pull` alone is enough.
 - `claude/skills/**` reaches a machine only through the plugin's **cached
   copy**, keyed by `version` in `claude/.claude-plugin/plugin.json`.
   `claude plugin update dcltdw@dcltdw` (what `./install.sh` runs) is a no-op
@@ -20,8 +20,8 @@ too — `core.hooksPath` points at `$LINK/githooks` — so it does *not* need a
 version bump.
 
 Full adopter-facing version of this: `claude/ADOPTING.md`.
-Specs and plans live in `docs/superpowers/`, dated in their filenames — the
-newest plan is the current one.
+Specs, plans and baselines live in `docs/superpowers/`, dated in their
+filenames — the newest plan is the current one.
 
 ## Project board
 

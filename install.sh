@@ -340,7 +340,7 @@ command -v gitleaks >/dev/null 2>&1 || echo "NOTE: gitleaks not installed (brew 
 echo
 if [ "$status" = 0 ]; then
   echo "Done. Start a new Claude session (or /clear) to pick up the rules."
-  echo "Garmin repos: add '@~/.claude/dcltdw/garmin-release.md' to that repo's CLAUDE.md (see claude/ADOPTING.md)."
+  echo "Garmin repos: add the release supplement + dcltdw:garmin-release skill pointer to that repo's CLAUDE.md (see claude/ADOPTING.md)."
 else
   echo "INCOMPLETE — this machine is only partly set up:" >&2
   printf '%s' "$PARTIAL" >&2
