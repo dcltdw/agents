@@ -150,6 +150,16 @@ path suitable for `core.hooksPath` (or plugin-managed git hooks). Any one
 of them landing is worth a fresh look; all three are needed to retire the
 symlink outright.
 
+Those three gates are unchanged standing policy — but note that gate (2) no
+longer has a live driver. It existed to cover per-repo opt-in imports, and
+this repo's last one is gone: the Garmin release procedure is a plugin skill
+now, so the symlink carries only `AGENTS.md` and `githooks/`. Whether losing
+that driver should retire gate (2) is a decision to take deliberately, on its
+own; it is not narrowed here as a side effect of moving one file. Until then,
+read gate (2) as policy awaiting review, **not** as evidence that the symlink
+still serves per-repo conditional content — it no longer does, and per "How
+imports resolve" below it never reliably could.
+
 ## Per-repo wiring
 
 **Board IDs are project-specific.** The universal rules say to track work on a
