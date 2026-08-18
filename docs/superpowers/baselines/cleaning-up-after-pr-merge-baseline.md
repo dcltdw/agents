@@ -12,7 +12,7 @@ what a Claude Code session does about PR-merge mechanics — the stacked-merge
 gate PR #19 deliberately left homeless, phantom-branch reporting, and
 post-merge wrap-up — with **no** AGENTS.md, no skill, no prior guidance of
 any kind. This is the sibling baseline to
-`docs/superpowers/plans/testing/opening-a-pr-baseline.md` (Task 3) and
+`docs/superpowers/baselines/opening-a-pr-baseline.md` (Task 3) and
 matches its method and rigour.
 
 **Clean-room recipe:** `CLAUDE_CODE_SIMPLE=1` with the scratch
