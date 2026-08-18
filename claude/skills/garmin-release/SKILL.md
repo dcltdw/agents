@@ -33,28 +33,35 @@ outward-facing and done by the human, not by Claude.
    not just the key you intended to use. Step 3 checked a key file; this checks
    the bytes that leave the machine, and it is a separate act.
 
-   A `.iq` is a **7-zip** container, not a zip: `unzip` fails on it, and no
-   7-zip extractor is installed on this machine — so don't plan on opening it,
-   and don't downgrade this step because you can't. You don't need to open it.
-   The modulus is greppable in the raw bytes:
+   A `.iq` is a **7-zip** container, not a zip: `unzip` fails on it. You don't
+   need to open it, and not having an extractor to hand is not a reason to
+   downgrade this step — the modulus is greppable in the raw bytes:
 
    ```bash
    MOD=$(openssl pkey -inform DER -in "$KEY" -pubout \
          | openssl rsa -pubin -modulus -noout | sed 's/^Modulus=//')
-   xxd -p bin/<App>.iq | tr -d '\n' | grep -qi "$MOD" \
-     && echo "ARTIFACT KEY OK" || echo "STOP — wrong key in the shipped .iq"
+   if [ ${#MOD} -lt 32 ]; then
+     echo "STOP — could not read the signing key; nothing was checked"
+   elif xxd -p bin/<App>.iq | tr -d '\n' | grep -qi "$MOD"; then
+     echo "ARTIFACT KEY OK"
+   else
+     echo "STOP — wrong key in the shipped .iq"
+   fi
    ```
 
-   `-i` because `xxd` emits lowercase hex and `openssl` uppercase. On NO MATCH,
-   stop and upload nothing: the store will not let a wrong-key build be undone.
-   The same grep works on a built `.prg`.
+   The length guard is not optional: an unset or unreadable `$KEY` leaves `MOD`
+   empty, and `grep -qi ""` matches anything — so without it this prints
+   `ARTIFACT KEY OK` having checked nothing. `-i` because `xxd` emits lowercase
+   hex and `openssl` uppercase. On NO MATCH, stop and upload nothing: the store
+   will not let a wrong-key build be undone. The same grep works on a built
+   `.prg`.
 6. **Store documents.** Update the store description, the store README, and any
    changelog — accurate to the real changes. The description has three parts and
    all three are actions:
    - Add a **"What's new in X.Y.Z"** block for this version.
    - **Move** the previous version's block down into the version-history list as
      a one-liner. It stops being "what's new".
-   - **Check the 4000-char cap** — `wc -c <description file>` — and print the
+   - **Check the 4000-char cap** — `wc -m <description file>` — and print the
      number. It is a hard store limit, it is not enforced by anything you run,
      and moving a block down is what usually pushes the file over it. If it's
      tight, drop the oldest history line.
@@ -80,10 +87,19 @@ outward-facing and done by the human, not by Claude.
      ```bash
      PRIV=$(openssl pkey -inform DER -in "$KEY" -noout -text \
             | awk '/privateExponent/{f=1;next}/^prime1/{f=0}f' | tr -d ' :\n')
-     xxd -p bin/<App>.iq | tr -d '\n' | grep -qi "${PRIV:0:64}" \
-       && echo "STOP — private key material in the package" \
-       || echo "package clean of private key"
+     if [ ${#PRIV} -lt 64 ]; then
+       echo "STOP — could not read the signing key; nothing was checked"
+     elif xxd -p bin/<App>.iq | tr -d '\n' | grep -qi "${PRIV:0:64}"; then
+       echo "STOP — private key material in the package"
+     else
+       echo "no raw private-key bytes found (detects only an uncompressed DER copy; nothing reads inside the .iq)"
+     fi
      ```
+
+     Report that verdict with its scope attached, not as "clean". It finds a
+     raw DER copy of the exponent; a PEM-armored key file embedded verbatim is
+     base64, so these bytes never appear, and a copy inside a compressed stream
+     may or may not survive depending on the format.
 8. **Board + PR hygiene** — board move and PR body via `dcltdw:opening-a-pr` /
    `dcltdw:cleaning-up-after-pr-merge`, commits stamped per `AGENTS.md`.
 9. **Tag** the release commit `vX.Y.Z`.
