@@ -1189,3 +1189,71 @@ like-for-like. Specifically:
 - The criteria to watch are **6** in both scenarios, **4** in S-A, and **5**
   and **8** in S-B. Those four failures are what the skill exists to fix; a
   GREEN that does not move them has not been demonstrated to work.
+
+## GREEN result (Task 3)
+
+`claude/skills/garmin-release/SKILL.md` was written from a port of
+`claude/garmin-release.md` (now deleted), adjusted only against the four
+condition-2 failures. The two scenarios were re-run with the skill body
+prepended to the prompt, under the same condition as condition 2 — the import
+block removed in place from each repo's `CLAUDE.md` for the duration of the
+run and restored immediately after, with the same sha256 / `git status` /
+branch / stash proofs. Same binary (`2.1.234`), same invocation form, same
+prompts verbatim. Raw transcripts (gitignored):
+`baseline-raw/green-SA-understated.txt`, `baseline-raw/green-SB-flightdeck.txt`.
+
+The same leak was accepted as in condition 2: the uncommitted `CLAUDE.md`
+deletion is visible to `git status` and both sessions noticed it (GREEN S-A
+line 10, GREEN S-B line 35). It is harmless here — the skill is injected
+directly, so there is nothing for a recovery read to add.
+
+| # | Criterion | C2 S-A (RED) | C2 S-B (RED) | **GREEN S-A** | **GREEN S-B** |
+|---|---|---|---|---|---|
+| 1 | Scope-diff before building | PASS | PASS | **PASS** | **PASS** |
+| 2 | Signing key by RSA-modulus match | PASS | PASS | **PASS** | **PASS** |
+| 3 | `-e` export build | PASS | PASS | **PASS** | **PASS** |
+| 4 | Re-verify the *built* artifact | **FAIL** | PASS | **PASS** | **PASS** |
+| 5 | Store copy (incl. 4000-char cap) | PASS | **FAIL** | **PASS** | **PASS** |
+| 6 | Secret-scan diff **and** artifact | **FAIL** | **FAIL** | **PASS** | **PASS** |
+| 7 | Tags `vX.Y.Z` | PASS | PASS | **PASS** | **PASS** |
+| 8 | Hand-off + unconfirmed-until-wild | PASS | **FAIL** | **PASS** | **PASS** |
+| | **Tally** | 6/8 | 5/8 | **8/8** | **8/8** |
+
+**All four watched criteria moved.** Per the Note for the GREEN step, the
+tallies are single runs and the tally shift is not the finding; the movement of
+criteria 6 (both scenarios), 4 (S-A) and 5 and 8 (S-B) is. No refactor round
+was needed.
+
+### Open item 1 is settled: a `.iq` is 7-zip, and the modulus is greppable anyway
+
+The three-way `unzip -l` disagreement was resolved empirically against
+`~/Github/Understated/bin/Understated.iq` before any skill text was written:
+
+- `file` → `7-zip archive data, version 0.2` (magic `377a bcaf 271c`). It is
+  **not** a zip: `unzip -l` fails with "End-of-central-directory signature not
+  found" and `zipfile.is_zipfile` returns `False`. C1 S-B's `unzip -l …
+  # confirm ~17 products present` would have errored, not verified.
+- No 7-zip extractor is installed (`7z`, `7za`, `7zz`, `p7zip` all absent), so
+  C2 S-A was right that the container cannot be opened here.
+- **But it does not need to be opened.** The signing key's RSA modulus is
+  present in the `.iq`'s raw bytes:
+  `xxd -p bin/Understated.iq | tr -d '\n' | grep -qi "$MOD"` matches for the
+  real key and does not match for a modulus with one byte flipped. That is the
+  workable procedure requirement 2 asked for, with the tools actually present.
+
+Correspondingly, `gitleaks dir` was measured before being written down: it
+scans the text a build drops beside the package (4.70 MB of `*-settings.json`
+and `*.prg.debug.xml` under Understated's `bin/`) and **skips binaries** —
+`gitleaks dir bin/Understated.iq` reports "scanned ~0 bytes". So the artifact
+half of criterion 6 needs the direct byte check as well, which the skill
+supplies as a private-exponent grep (absent from both the `.iq` and the `.prg`,
+as expected; the public modulus is present, being the certificate).
+
+### Open item 2: the behavior check stays as ported
+
+The `compile ≠ works` line was left exactly as `claude/garmin-release.md` had
+it, inside checklist step 2. The baseline withdrew the licence to *omit* the
+topic without licensing its *addition*, and the port already carried it —
+keeping it is the straight port, not a deviation. GREEN S-B gave it a step
+anyway ("Step 6 — Behaviour check in the simulator … Compiling proves types,
+not rendering", line 136–138), which neither condition-2 control did.

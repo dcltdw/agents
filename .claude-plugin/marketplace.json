@@ -6,7 +6,7 @@
     {
       "name": "dcltdw",
       "source": "./claude",
-      "description": "Cross-project PR lifecycle skills for dcltdw's repos"
+      "description": "Cross-project skills for dcltdw's repos: PR lifecycle and Garmin releases"
     }
   ]
 }
