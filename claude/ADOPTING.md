@@ -140,26 +140,21 @@ the other:
 
 Plugin-only delivery is not currently possible (verified against Claude
 Code 2.1.233, 2026-08): plugins cannot contribute always-loaded
-instruction text, cannot serve per-repo conditional content or
-version-stable import paths, and their cache path is version-stamped and
-therefore unusable as a `core.hooksPath` target. **Revisit retiring the
-symlink when Claude Code ships all three:** (1) always-loaded plugin
-instruction text; (2) per-repo conditional plugin content or a
-version-stable import path into an installed plugin; (3) a version-stable
-path suitable for `core.hooksPath` (or plugin-managed git hooks). Any one
-of them landing is worth a fresh look; all three are needed to retire the
-symlink outright.
+instruction text, and their cache path is version-stamped and therefore
+unusable as a `core.hooksPath` target. (Plugins also cannot serve per-repo
+conditional content or version-stable import paths — still true of Claude
+Code, but no longer a gate here; see the decision record below.)
+**Revisit retiring the symlink when Claude Code ships both:** (1)
+always-loaded plugin instruction text; (2) a version-stable path suitable
+for `core.hooksPath` (or plugin-managed git hooks). Either one landing is
+worth a fresh look; both are needed to retire the symlink outright.
 
-Those three gates are unchanged standing policy — but note that gate (2) no
-longer has a live driver. It existed to cover per-repo opt-in imports, and
-this repo's last one is gone: the Garmin release procedure is a plugin skill
-now, so the symlink carries only `AGENTS.md` and `githooks/`. Whether losing
-that driver should retire gate (2) is a decision to take deliberately, on its
-own; it is not narrowed here as a side effect of moving one file. Until then,
-read gate (2) as policy awaiting review, **not** as evidence that the symlink
-still serves per-repo conditional content — it no longer does, and per "How
-imports resolve" below the project-level import that consumed it never
-reliably worked. (The symlink delivered the file reliably; nothing loaded it.)
+**Decision, 2026-08-18: a former third gate — per-repo conditional plugin content
+or a version-stable import path into an installed plugin — was retired.**
+Its only driver was this repo's per-repo opt-in imports, and the last one
+went away when the Garmin release procedure became a plugin skill; the
+symlink now carries only `AGENTS.md` and `githooks/`. Its absence from the
+list above is deliberate, not an oversight.
 
 ## Per-repo wiring
 
