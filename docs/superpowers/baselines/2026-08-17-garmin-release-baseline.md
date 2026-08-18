@@ -451,9 +451,10 @@ Executed by a separate session; full record, including the exact diffs, the
 restore proofs and a condition-validation grep, in
 `.superpowers/sdd/2026-08-17-garmin-release-skill/task-2c-methods.md`.
 
-Same binary (`2.1.234`), same invocation form character-for-character, same
-prompts. **Only the `CLAUDE.md` condition differs:** the four-line import
-block
+Same binary (`2.1.234`), same invocation form, same prompts. **The
+`CLAUDE.md` condition is the intended difference** — but it is not the only
+observable one; two others are recorded in Limitations 5 and 6 below and
+should be read alongside this section. The four-line import block
 
 ```
 The Garmin store-release process is shared (edit the shared doc, not a copy):
@@ -676,7 +677,10 @@ and no check for it exists — and because this is the sharpest cross-condition
 delta in the whole baseline: **condition 1 S-B knew the cap and reasoned about
 it in detail** ("**4000-char cap.** The file is currently 3538 bytes; past
 entries run 295–399 chars…"), and Flightdeck's `CLAUDE.md` supplement does not
-contain it. Remove the shared doc, and the cap knowledge disappears.
+contain it. The pattern is consistent with the shared doc being the cap's only
+carrier for this repo — though with one run per cell it is an indication, not a
+measured effect (Limitation 7). The FAIL itself does not depend on that
+reading: this plan, as written, ships store copy without ever checking the cap.
 
 **6 — secret scan. FAIL.** There is no secret scan of any kind — not of the
 diff, not of the artifact. The preflight enumerates every check it intends and
@@ -766,10 +770,23 @@ changes what the passes license:
 Read against condition 2's verdicts this is strikingly tight: **every
 criterion the supplements state was passed, and every condition-2 failure
 falls where the relevant supplement is silent** — criterion 4 in S-A,
-criterion 5's cap in S-B, criterion 6 in both, criterion 8 in S-B. The two
-exceptions are passes without supplement support: criterion 1 (both scenarios)
-and criterion 8 in S-A, the latter with a repo-specific memory file as its
-likely source.
+criterion 5's cap in S-B, criterion 6 in both, criterion 8 in S-B.
+
+Three passes are the exceptions, in that they have no supplement support:
+
+- **Criterion 1, both scenarios.** Neither supplement mentions scope-diffing.
+- **Criterion 7, S-A.** Re-checked directly: `Understated/CLAUDE.md` contains
+  no tagging rule at all — its only version-adjacent line is the store-copy
+  entry ("`store/description.txt` ("What's new" + version history, 4000-char
+  cap)"), and the word "tag" does not appear in the file. C2 S-A nonetheless
+  tagged correctly and in the right order (line 153). The likely source is
+  general git/release knowledge rather than anything Garmin-specific, which
+  *strengthens* the "do not belabor tagging" conclusion below.
+- **Criterion 8, S-A**, with a repo-specific memory file as its likely source.
+
+The correspondence is therefore strong but not total, and it is a mapping of
+plausible sources rather than a demonstrated causal chain — see Limitation 7 on
+sample size.
 
 ### Did the RED condition actually hold?
 
@@ -830,10 +847,14 @@ says no.
    shared doc in condition 1); built-artifact re-verification vanished in S-A
    (present in condition 1 as "Checklist step 5", absent from Understated's
    supplement). If either session had recovered the document, these are
-   precisely the behaviors that would have survived. They did not.
-6. **The tallies are fully explained without positing recovery.** Every pass
-   maps to a surviving supplement line, a repo-local artifact, a project memory
-   file, or general `AGENTS.md` discipline — see the attribution table above.
+   precisely the behaviors that would have survived. They did not. (Each delta
+   is a difference between two single runs — see Limitation 7. They corroborate
+   one another and all point the same way, but they are indicative rather than
+   measured, and this item is one of six, not the argument on its own.)
+6. **The tallies are explained without positing recovery.** Every pass maps to
+   a surviving supplement line, a repo-local artifact, a project memory file,
+   or general `AGENTS.md` discipline — see the attribution table above, and its
+   three exceptions.
 
 **What the condition therefore measures**, stated precisely so the synthesis is
 not over-read: *an agent working in a Garmin repo with that repo's supplement,
@@ -885,6 +906,47 @@ reset afterwards), which trades one exposure risk for another.
    that the import "never expands", at least on a Read of the importing file in
    this harness version. The file's content was not used and no SKILL.md text
    was drafted.
+5. **Understated's upstream state changed between the two conditions**, so the
+   `CLAUDE.md` line was not the only difference between the runs. During
+   condition 1, `add-gpl3-license` was unmerged — C1 S-A: "`47fa21c` GPL-3.0
+   LICENSE | no (not merged yet)" (line 14) and "`add-gpl3-license` is 1 commit
+   ahead of `main` with no open PR. It ships in this release, so it merges
+   first." (line 37). By condition 2 it had merged upstream — C2 S-A: "You're
+   on `add-gpl3-license`, whose PR #80 **already merged**… Local `origin/main`
+   is also stale — it doesn't have the merge." (line 48). Both sessions handled
+   the state they found correctly, and the change is confined to release
+   *scope* and branch hygiene: it plausibly affects criterion 1's content
+   (which both conditions passed anyway) and cannot explain any of the four
+   condition-2 failures, none of which concerns branch state — the 4000-char
+   cap and hand-off framing are S-B findings in a repo untouched by this, and
+   criterion 4 and 6 are artifact-verification behaviors independent of what is
+   in the release. Disclosed because a document whose central claim is
+   condition isolation should not leave a reader to find this in the raw files.
+6. **The invocation environment was not byte-identical either.** Both
+   condition-2 transcripts open with a harness line absent from all three
+   condition-1 transcripts: "Warning: no stdin data received in 3s, proceeding
+   without it. If piping from a slow command, redirect stdin explicitly:
+   < /dev/null to skip, or wait longer." (`RED-SA:1`, `RED-SB:1`). So
+   `task-2c-methods.md`'s claim of character-for-character replication holds
+   for the prompt and the flags but not for the observed stdin handling. This
+   is a harness-level difference upstream of the model's task context; it
+   carries no release-procedure content and is not plausibly related to any of
+   the eight criteria. Recorded for completeness.
+7. **One run per cell.** Each of the four (repo × condition) cells is a single
+   one-shot `claude -p` invocation, and such runs vary between invocations. Two
+   consequences, and they are different in kind:
+   - **The failures are sound as they stand.** A plan that omits a cap check or
+     scans no artifact has demonstrated that omission, and that is all a RED
+     baseline needs. Nothing in the verdict tables is weakened by n=1.
+   - **The cross-condition deltas are indicative, not measured effects.** The
+     disappearance of the cap, of the wild-evidence framing, and of
+     artifact re-verification are each a difference between two single runs.
+     They are mutually corroborating, they all point the same way, and each
+     lands where the shared doc was the only available source — which is why
+     they are used as evidence — but no effect size is established and a
+     repeat run could differ. This bounds evidence item 5 of the condition-held
+     judgement above and must-teach item 3 in the synthesis; neither rests on
+     the deltas alone.
 
 ### What the condition-2 controls did well, unprompted
 
@@ -1013,12 +1075,15 @@ stated from observed behavior.
    demonstrably already there in the agent's reasoning and still produced a
    FAIL.
 3. **The 4000-char store-description cap and the history-move mechanics
-   (criterion 5).** C2 S-B FAIL. This is the cleanest natural experiment in the
-   baseline: the cap is absent from Flightdeck's supplement, C1 S-B (with the
-   shared doc) reasoned about it in detail, and C2 S-B (without) never mentions
-   it. C2 S-A passes, but its supplement states the cap verbatim, so that pass
-   is not transferable evidence. The shared doc is currently the only carrier
-   of this rule for repos whose supplement omits it.
+   (criterion 5).** C2 S-B FAIL — that failure is the load-bearing part and it
+   stands on its own: the plan edits store copy with no cap check of any kind.
+   The supporting pattern is the sharpest in the baseline, with the caveat of
+   Limitation 7: the cap is absent from Flightdeck's supplement, C1 S-B (with
+   the shared doc) reasoned about it in detail, and C2 S-B (without) never
+   mentions it. C2 S-A passes, but its supplement states the cap verbatim, so
+   that pass is not transferable evidence. On this evidence the shared doc
+   appears to be the only carrier of this rule for repos whose supplement omits
+   it.
 4. **The hand-off framing, specifically the "unconfirmed until the wild says
    so" half (criterion 8).** C2 S-B FAIL. Both condition-2 scenarios get the
    *human uploads* half unaided (it is discoverable from `store/README.md` or
@@ -1038,7 +1103,10 @@ stated from observed behavior.
    led with it and both derived a blocking finding from it. A mention is
    enough; a procedure is waste.
 2. **Tagging `vX.Y.Z` (criterion 7).** PASS in all four runs. C2 S-A sequences
-   it correctly after merge unprompted; C2 S-B gets it from `release.sh`.
+   it correctly after merge unprompted — and with no supplement support at all
+   (`Understated/CLAUDE.md` contains no tagging rule), which points to general
+   git knowledge rather than anything the shared doc supplies; C2 S-B gets it
+   from `release.sh`.
 3. **Signing-key verification by modulus and the `-e` export (criteria 2, 3).**
    PASS in all four runs — but note the reason: **both** repos' supplements
    state both rules outright (see the attribution table). The skill should not
@@ -1102,6 +1170,18 @@ like-for-like. Specifically:
   element named in a criterion must appear as a concrete action — and compare
   against the **6/8 (S-A) and 5/8 (S-B)** figures, not against condition 1's
   15/16.
+- **Do not treat those figures as a precise bar.** Each is a single one-shot
+  run (Limitation 7), so a one-point difference either way is within the noise
+  of re-running the same prompt and is not evidence about the skill. What is
+  interpretable is *which* criteria move: the four named below are specific,
+  reproducible omissions, and a GREEN that fixes them has demonstrated
+  something a tally shift alone has not. If a tally comparison is going to
+  carry weight, run each cell more than once.
+- Note the two incidental between-condition differences in Limitations 5 and 6
+  (Understated's upstream branch state, and the stdin warning) and keep them
+  from drifting further — in particular, re-check Understated's branch/merge
+  state before the GREEN run and record it, since it has already changed once
+  between conditions.
 - Expect the same leak (the uncommitted `CLAUDE.md` deletion is visible to
   `git status`) and either accept it, as here, or remove it by committing the
   deletion on a throwaway branch — but make the same choice for every GREEN
