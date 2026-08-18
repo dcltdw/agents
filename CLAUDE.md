@@ -6,8 +6,8 @@ This repo ships `claude/` two ways at once: as the `dcltdw` plugin
 `~/.claude/dcltdw` symlink that `install.sh` creates. Those two delivery
 paths behave differently:
 
-- `claude/AGENTS.md` and `claude/garmin-release.md` reach an installed
-  machine live, through the symlink — a `git pull` alone is enough.
+- `claude/AGENTS.md` reaches an installed machine live, through the
+  symlink — a `git pull` alone is enough.
 - `claude/skills/**` reaches a machine only through the plugin's **cached
   copy**, keyed by `version` in `claude/.claude-plugin/plugin.json`.
   `claude plugin update dcltdw@dcltdw` (what `./install.sh` runs) is a no-op
