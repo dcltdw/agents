@@ -4,71 +4,77 @@ Task 2 of `docs/superpowers/plans/2026-08-17-garmin-release-skill.md`. Per the
 TDD-for-skills Iron Law, this document must exist and show what the control
 does before `claude/skills/garmin-release/SKILL.md` is written. It has not
 been written; nothing below should be read as a draft of it, and
-`claude/garmin-release.md` was not opened at any point while grading.
+`claude/garmin-release.md` was not opened at any point while grading either
+condition.
 
-Grading was done by a fresh reader who did not run the scenarios and has no
-memory of them. Every verdict below carries a verbatim quote from the raw
-transcript, with the scenario and line number named. Raw transcripts (not
-committed, gitignored):
+**This document was amended after its first version.** The baseline was run
+twice, under two different conditions, and only the second is a RED baseline.
+Both are recorded in full: the first because its failure is itself a finding,
+the second because it is the control the skill must be calibrated against.
+Grading of each condition was done by a fresh reader who did not run the
+scenarios and, for condition 2, wrote its verdicts before reading condition
+1's. Every verdict carries a verbatim quote from the raw transcript with the
+scenario and line number named. Raw transcripts (not committed, gitignored):
 `.superpowers/sdd/2026-08-17-garmin-release-skill/baseline-raw/`.
 
-## Headline: this baseline did not come out RED
+## Headline: the first condition was not RED; the second one is
 
-Both behavioral transcripts open by stating they read the shared release
-procedure. S-A, line 1:
-
-> "I read the shared release doc, the repo state, and the project memory."
-
-S-B, line 1:
-
-> "I read the shared process doc, `docs/releasing.md`, `tools/release.sh`, and
-> the current repo state."
-
-S-B names it again later as its authority for the hand-off rule (line 128):
-"Per the shared doc, uploading is human-only — I don't do it." S-A twice cites
-the procedure's own numbering — "checklist step 1 is 'no stray/diagnostic
-branches riding along'" (line 48) and "Checklist step 5 — modulus-match the
-*shipped* `.iq`" (line 111) — which is not something a session could produce
-without the document in front of it.
-
-The delivery defect is real and S-0 re-confirms it: the import does not
-expand, so the procedure is not *passively* in context. But when handed a
-release task, both sessions went and read it anyway. The route is visible in
-S-0's own closing line — the unexpanded import line in the repo's `CLAUDE.md`
-prints the file's path, and the session offered to follow it:
+**Condition 1 (the original run) measured the wrong thing.** Both behavioral
+transcripts open by stating they read the shared release procedure, and both
+scored near ceiling — 15/16. The route is visible in S-0's own closing line:
+the repo `CLAUDE.md` carries an import (`@~/.claude/dcltdw/garmin-release.md`)
+that never expands into context — that is the delivery defect under repair —
+but the dead line still **prints the file's path**, and a session with a Read
+tool follows it:
 
 > "Want me to read `~/.claude/dcltdw/garmin-release.md` and quote it back?"
 > (S-0, line 15)
 
-**Consequence for grading.** The 15/16 pass rate below is a measurement of
-*"agent that has read the procedure"*, not of a naive agent. It is close to a
-GREEN result recorded before the skill exists. Verdicts are still recorded
-honestly and in full, because they are the record of what these transcripts
-say — but they carry much weaker authority to license deviation from a
-straight port than a genuine RED would, and they do **not** demonstrate that
-these behaviors survive without the document.
+So the "control" had the document in hand. A 15/16 pass rate by sessions
+holding the procedure is closer to a pre-emptive GREEN than to a RED.
 
-**Consequence for the design.** The design deletes the import line from both
-repos' `CLAUDE.md` (PRs B and C). That line is exactly what put the path in
-front of these sessions. So the recovery route these transcripts used is one
-the initiative is about to remove — which strengthens the case for the skill
-rather than weakening it, but means the post-change naive baseline was never
-measured. See "What this baseline does not establish".
+**This falsifies a premise the design spec states explicitly** — that no clean
+room is needed because
 
-This finding rests on the transcripts' self-report plus S-A's citation of
-checklist step numbers. It was deliberately not corroborated by opening
-`claude/garmin-release.md`, per this task's Iron Law; Task 3, which reads that
-file anyway, can confirm the step numbering in one glance.
+> "the content under test *never loads* (that is the defect), so a fresh
+> session in a Garmin repo already **is** the naive agent"
+> (`docs/superpowers/specs/2026-08-17-garmin-release-skill-design.md`, lines
+> 107–112)
 
-## Methods
+The premise holds for **passive** loading and fails for **active recovery**.
+The import genuinely does not expand — S-0 confirms this for a third time, and
+that diagnosis stands untouched. What the spec did not anticipate is that a
+non-expanding import is still a *pointer*, and an agent handed a release task
+will go and read what the pointer names. This is a correction to the spec's
+reasoning about how to measure the baseline, not a defect in the initiative's
+direction: the initiative is about to delete that import line (PRs B and C),
+which closes the recovery route and makes the skill more necessary, not less.
 
-Executed by a separate session (Steps 1–4); full record in
+**Condition 2 (the re-run) removed the pointer** — the import block was deleted
+in place from each repo's `CLAUDE.md` for the duration of the run and restored
+immediately after — so the session had neither the procedure nor a path to it.
+That is the end-state condition, and it produced a genuine RED: **S-A 6/8, S-B
+5/8**, with criterion 6 failing in both. Condition 2 governs the synthesis.
+Condition 1 is retained below because it explains something the initiative
+needed explaining — why nobody noticed the import was dead — and because it is
+evidence that the procedure's content works when an agent has it.
+
+## Condition 1 — pointer present (not the baseline)
+
+Retained in full. Read these verdicts as *"what an agent does when it has just
+read the shared procedure"*, which is what they measure.
+
+### Methods
+
+Executed by a separate session (plan Steps 1–4); full record in
 `.superpowers/sdd/2026-08-17-garmin-release-skill/task-2a-methods.md`.
 
 - **Binary:** `2.1.234 (Claude Code)`, at
   `~/.vscode/extensions/anthropic.claude-code-2.1.234-darwin-x64/resources/native-binary/claude`.
 - **Invocation:** `"$BIN" -p "<prompt>" > <outfile> 2>&1`, one non-interactive
   run per scenario. All three exited 0.
+- **CLAUDE.md condition:** unmodified — the import line present but
+  non-expanding.
 
 | Scenario | Working directory | Duration | Output |
 |---|---|---|---|
@@ -103,27 +109,23 @@ S-B (identical but for the app noun and version):
 `~/Github/Understated` and `~/Github/Flightdeck` before and after every run.
 Nothing mutated; the dry-run constraint held.
 
-## S-0: delivery recheck (not graded against the eight criteria)
+### The recovery evidence
 
-**Result: the procedure is not in context — the delivery failure reproduces.**
+S-A, line 1: "I read the shared release doc, the repo state, and the project
+memory." S-B, line 1: "I read the shared process doc, `docs/releasing.md`,
+`tools/release.sh`, and the current repo state." S-B names it again as its
+authority for the hand-off rule (line 128): "Per the shared doc, uploading is
+human-only — I don't do it." S-A twice cites the procedure's own numbering —
+"checklist step 1 is 'no stray/diagnostic branches riding along'" (line 48)
+and "Checklist step 5 — modulus-match the *shipped* `.iq`" (line 111) — which
+is not something a session could produce without the document in front of it.
 
-> "It is not in my context.
->
-> `Understated/CLAUDE.md` contains the *import line*
-> `@~/.claude/dcltdw/garmin-release.md`, but that file's contents were not
-> expanded into this session — only `~/.claude/CLAUDE.md`,
-> `~/.claude/dcltdw/AGENTS.md`, and the project `CLAUDE.md` were. So I have no
-> pre-release checklist or numbered release steps to quote, and I won't
-> reconstruct them from memory." (S-0, lines 1–3)
+This finding rests on the transcripts' self-report plus S-A's citation of
+checklist step numbers. It was deliberately not corroborated by opening
+`claude/garmin-release.md`, per this task's Iron Law; Task 3, which reads that
+file anyway, can confirm the step numbering in one glance.
 
-It listed the five project memory files it *does* hold and noted, correctly,
-that none of them is the release process: "the signing-key memory only records
-which developer key signs the app" (line 13). This is a clean, third
-independent confirmation of Finding 1 in the design spec — and it also
-supplies the mechanism by which S-A and S-B recovered the document (the import
-line names the path).
-
-## S-A verdicts (Understated — no release automation)
+### S-A verdicts, condition 1 (Understated — no release automation)
 
 | # | Criterion | Verdict |
 |---|---|---|
@@ -236,7 +238,7 @@ Correctly sequenced after merge, on `main` pulled fresh (line 141).
 Both halves are present: the human uploads, and confirmation comes from field
 evidence rather than the build.
 
-## S-B verdicts (Flightdeck — has `tools/release.sh`)
+### S-B verdicts, condition 1 (Flightdeck — has `tools/release.sh`)
 
 | # | Criterion | Verdict |
 |---|---|---|
@@ -316,6 +318,10 @@ for the screenshot recipe rather than updated (line 63) — acceptable under a
 criterion satisfied by changelog *or* README, and the changelog is fully
 handled.
 
+*Noted for the cross-condition comparison below:* the 4000-char cap is **not**
+in Flightdeck's `CLAUDE.md` supplement. In this repo the shared doc is the only
+place it could have come from.
+
 **6 — secret scan. FAIL — the diff is scanned, the built artifact is not.**
 The diff half is present:
 
@@ -334,9 +340,7 @@ this repo the artifact is both committed under `store/` by the release script
 and attached to a public GitHub Release, and even though it knows a private
 key file (`developer_key.der`) sits in the repo root — it mentions the key
 only as a prerequisite, "in the repo root (mode 600, gitignored)" (line 105).
-Graded FAIL. This is the one criterion where the two scenarios diverge, and
-the split is on real evidence: S-A states a conclusion about the artifact's
-contents, S-B does not mention them.
+Graded FAIL.
 
 **7 — tag. PASS, delegated.**
 
@@ -360,56 +364,52 @@ The tag is also verified after the fact via `gh release view v2.3.0` (line
 The clearest statement of the criterion in either transcript, and explicitly
 sourced to the shared doc.
 
-## What the controls did well, unprompted
+**Condition 1 tally: S-A 8/8, S-B 7/8 — 15/16.** Failed in both: none. Failed
+in one: criterion 6, S-B only.
 
-Per writing-skills, guidance piled where the control already succeeds
-measurably degrades the skill. This section is the list of places Task 3 must
-leave alone. "Unprompted" here means: not asked for by the prompt, and beyond
-the eight criteria — though see the headline finding, since some of it may
-trace to the procedure both sessions read.
+### What the condition-1 controls did well, unprompted
+
+Retained as recorded, but **superseded for planning purposes** by the
+condition-2 list further down: some of what follows may trace to the procedure
+both sessions had just read, and at least one item demonstrably does not
+survive its removal. Read it as observation, not as licence.
 
 **Both scenarios:**
 
-- **Refused to accept the premise of the request.** Neither treated the given
-  version number as settled. S-A: "So 'prepare v1.4.0' is a naming decision,
-  not a bump I can derive. Confirm 1.4.0 is what you want rather than
-  0.9.7/1.0.0." (line 5). S-B went further and found there was nothing to
-  ship at all: "`git log v0.1.5..main` returns zero commits… A release cut now
-  would build a byte-identical app to what's already published." (line 5).
-  Both then wrote the plan anyway and ended by asking — S-B: "Tell me the
-  intended version number and what work is supposed to be in it, and I'll
-  start at Phase 0." (line 132). This is the "clarify before proceeding" rule
-  applied without being invoked.
-- **Honored the dry-run constraint exactly.** No mutation in either repo
-  (verified: `git status --porcelain` empty before and after). S-B closed by
-  stating it: "Nothing was executed and no files were changed — I only read."
-  (line 132).
-- **Treated compilation as insufficient evidence of working software, without
-  being asked.** S-A gives it a whole phase titled "Phase 7 — behavior check
-  (compile ≠ works)" and specifies what to exercise in the simulator: "all
-  four data-field slots populated, theme switch (incl. Multi), second hand
-  on/off, and Display Mode → sleep to exercise the low-power path" (line 129).
-  S-B: "Then a behaviour check in the simulator on `fr965` — compiling proves
-  nothing about rendering" (line 36). This is the predicted unprompted pass
-  and it is a strong one in both.
+- **Refused to accept the premise of the request.** S-A: "So 'prepare v1.4.0'
+  is a naming decision, not a bump I can derive. Confirm 1.4.0 is what you want
+  rather than 0.9.7/1.0.0." (line 5). S-B went further and found there was
+  nothing to ship at all: "`git log v0.1.5..main` returns zero commits… A
+  release cut now would build a byte-identical app to what's already
+  published." (line 5). Both then wrote the plan anyway and ended by asking —
+  S-B: "Tell me the intended version number and what work is supposed to be in
+  it, and I'll start at Phase 0." (line 132).
+- **Honored the dry-run constraint exactly.** No mutation in either repo. S-B:
+  "Nothing was executed and no files were changed — I only read." (line 132).
+- **Treated compilation as insufficient evidence of working software.** S-A
+  gives it a whole phase titled "Phase 7 — behavior check (compile ≠ works)"
+  and specifies what to exercise in the simulator: "all four data-field slots
+  populated, theme switch (incl. Multi), second hand on/off, and Display Mode →
+  sleep to exercise the low-power path" (line 129). S-B: "Then a behaviour
+  check in the simulator on `fr965` — compiling proves nothing about rendering"
+  (line 36). **This is the item that does not survive condition 2** — see
+  "Withdrawn from the must-not-belabor list" in the synthesis.
 - **Applied the cross-project rules correctly without prompting** — release
   branch rather than `main`, PR via `dcltdw:opening-a-pr`, wait for approval,
-  `dcltdw:cleaning-up-after-pr-merge`, board move with real ids, `Co-Authored-By`
-  stamp, gitleaks hook. S-A: "**Wait for your approval before merging** — I
-  don't merge my own work." (line 137). S-B: "**Wait for approval; do not
-  self-merge.**" (line 83).
+  `dcltdw:cleaning-up-after-pr-merge`, board move with real ids,
+  `Co-Authored-By` stamp, gitleaks. S-A: "**Wait for your approval before
+  merging** — I don't merge my own work." (line 137). S-B: "**Wait for
+  approval; do not self-merge.**" (line 83).
 
 **S-A specifically:**
 
 - **Built from a clean checkout rather than the working tree, and said why.**
   "AGENTS.md: verify where the artifact will live. `bin/` is git-ignored, so a
   stale local build can't be told from a fresh one in place." (line 81),
-  followed by `git worktree add`. This is a genuine transfer of a general rule
-  to a domain the rule does not mention.
-- **Refused to let the store copy overclaim.** With issue #73 open, "1.4.0
-  must **not** claim a fix" (line 18) and, in the description block, "No
-  stability claim about the fenix-6 disappearance." (line 57). Honest store
-  copy is not one of the eight criteria and it arrived unbidden.
+  followed by `git worktree add`.
+- **Refused to let the store copy overclaim.** With issue #73 open, "1.4.0 must
+  **not** claim a fix" (line 18) and "No stability claim about the fenix-6
+  disappearance." (line 57).
 - **Sized the release against its content and said it was thin.** "That's one
   internal cleanup — no user-visible feature, so the 'What's new' block will
   read thin." (line 16).
@@ -419,111 +419,693 @@ trace to the procedure both sessions read.
 - **Read the automation critically instead of trusting it.** "`release.sh`'s
   regex (`^v[0-9]+\.[0-9]+\.[0-9]+$`) accepts `v2.3.0` happily, and the tag is
   pushed and the GitHub Release published in the same script run, so nothing
-  downstream catches it." (line 7) — identifying that the guardrail does not
-  cover the mistake actually in front of it.
-- **Turned a delegated step into something observable.** Rather than "run the
-  script", it named the two lines that constitute evidence the check ran
-  (lines 110–111) and the warning string that means it did not (line 114),
-  with a stop condition. That is the right shape for depending on automation.
+  downstream catches it." (line 7).
+- **Turned a delegated step into something observable** — naming the two lines
+  that constitute evidence the check ran (lines 110–111) and the warning string
+  that means it did not (line 114), with a stop condition.
 - **Knew which artifact is the store anchor and why** — verification against
   the *earliest* published Release `.iq` (`v0.1.1`), "the store anchor" (line
   103), rather than the most recent.
 
-**One factual disagreement between the transcripts, unresolved.** S-A: "note
-`unzip -l` on a `.iq` lists nothing, so the portal's count after upload is the
-real confirmation" (line 98). S-B: "`unzip -l store/flightdeck-v2.3.0.iq |
-head -30   # confirm ~17 products present`" (line 124). One of these is wrong
-about whether a `.iq` is listable as a zip. Neither was executed, so this
-baseline cannot say which. Flagged because a verification step that silently
-lists nothing is worse than no step at all, and because it is exactly the kind
-of detail a skill either gets right or should not assert.
+### What condition 1 is good for
 
-## Confounds, recorded honestly
+It is not the baseline. It is three other things, all worth keeping:
 
-1. **Both repos' own `CLAUDE.md` release supplements were in context, and
-   Flightdeck additionally has `tools/release.sh` and `docs/releasing.md`.**
-   This is the real deployment condition, not contamination — the skill ships
-   into exactly this context, and measuring it with the supplements removed
-   would measure an environment that will never exist. S-B's delegated passes
-   on criteria 2, 4 and 7 are entirely a `release.sh` effect, and that is the
-   correct thing to measure for Flightdeck.
-2. **The controls read the shared procedure.** The largest confound by far;
-   see the headline section. It is not repo-supplement contamination — it is
-   the document under test entering the session by an active route the design
-   is about to close.
-3. **No clean room, by design.** The last initiative's clean room existed
-   because AGENTS.md contaminated every subagent. Here the premise was that
-   the content under test never loads, so a fresh session in a Garmin repo
-   already *is* the naive agent. Confound 2 shows that premise holds only for
-   passive loading; a clean room (or, more precisely, a run with the import
-   line removed) would have been the way to catch it.
-4. **`~/Github/Understated` was on branch `add-gpl3-license`, not `main`,
-   during S-0 and S-A.** Checked while grading:
-   `git diff --stat main add-gpl3-license -- CLAUDE.md` is empty (the file is
-   byte-identical between the two), and `git log --oneline main..add-gpl3-license`
-   is the single commit `47fa21c Add GPL-3.0-or-later license`. So the context
-   the session loaded was identical to `main`'s, and this is not a confound
-   for the verdicts. It is visible *in* the transcript, though — S-A folded
-   the branch into its plan ("`add-gpl3-license` is 1 commit ahead of `main`
-   with no open PR. It ships in this release, so it merges first.", line 37),
-   which is correct behavior for the state it found.
-5. **Both repos verified clean** (`git status --porcelain` empty) before and
-   after every run; all three invocations exited 0 with no truncation. No
-   transcript was fragmentary and each answers the prompt it was given.
+1. **It explains why the dead import went unnoticed for so long.** Sessions
+   were silently repairing the delivery failure by following the path the
+   broken import printed. The defect was invisible precisely because its
+   symptom was being masked at the point of use.
+2. **It is evidence the procedure's content works when an agent has it.**
+   15/16 of the load-bearing behaviors appear when the document is in hand.
+   Whatever the skill ships, the content it ports is not the problem.
+3. **It is a de facto GREEN reference.** Task 4's injection runs can be
+   compared against it as well as against condition 2 — with the caveat that
+   condition 1 sessions read the file from disk rather than receiving it as
+   skill content, so the comparison is indicative, not exact.
+
+## Condition 2 — import removed (the true RED)
+
+### Methods
+
+Executed by a separate session; full record, including the exact diffs, the
+restore proofs and a condition-validation grep, in
+`.superpowers/sdd/2026-08-17-garmin-release-skill/task-2c-methods.md`.
+
+Same binary (`2.1.234`), same invocation form character-for-character, same
+prompts. **Only the `CLAUDE.md` condition differs:** the four-line import
+block
+
+```
+The Garmin store-release process is shared (edit the shared doc, not a copy):
+
+@~/.claude/dcltdw/garmin-release.md
+```
+
+was deleted in place from each repo's `CLAUDE.md` before the run
+(`1 file changed, 4 deletions(-)` in both; `grep -c 'garmin-release' CLAUDE.md`
+→ **0**) and restored immediately afterwards. Each repo's own release
+supplement was left intact — that is the initiative's end state, not a
+confound.
+
+| Scenario | Working directory | Duration | Output |
+|---|---|---|---|
+| RED S-A behavioral | `/Users/dcltdw/Github/Understated` | 213 s | `RED-SA-understated.txt`, 167 lines |
+| RED S-B behavioral | `/Users/dcltdw/Github/Flightdeck` | 101 s | `RED-SB-flightdeck.txt`, 112 lines |
+
+**Restore verified, both repos:** `CLAUDE.md` sha256 identical to the
+pre-experiment value, `git status --porcelain` empty, branch unchanged,
+`git stash list` empty, `HEAD` unchanged with no new reflog entries. The stash
+check was run deliberately because RED S-A *proposed* a `git stash push` on
+`CLAUDE.md`; it planned it and did not execute it. Nothing under `~/.claude/`
+was touched.
+
+### Grading rule for condition 2
+
+**A criterion PASSES only if every element it names appears as a concrete
+action in the plan.** A near-miss is a FAIL with the near-miss quoted. This is
+marginally stricter than condition 1's grading, which rounded one compound
+criterion up. The two roundings that moved under this rule are called out
+where they occur, and neither cross-condition delta below depends on the rule:
+each one is a behavior that is present in one condition and simply absent in
+the other.
+
+### RED S-A verdicts (Understated — no release automation; the sharper control)
+
+| # | Criterion | Verdict |
+|---|---|---|
+| 1 | Scope-diffs `main` against last release tag before building | PASS |
+| 2 | Verifies signing key by RSA-modulus match against a published artifact | PASS |
+| 3 | Builds store package via `-e` export (all products) | PASS |
+| 4 | Re-verifies the *built* artifact's modulus | **FAIL** — deferred as optional |
+| 5 | Store copy: description ("What's new" + history move, 4000-char cap) and changelog/README | PASS |
+| 6 | Secret-scans the diff **and** built artifacts | **FAIL** — diff only, artifact missed by the commands chosen |
+| 7 | Tags `vX.Y.Z` | PASS |
+| 8 | Hand-off framing: human uploads; unconfirmed until wild evidence | PASS |
+
+**1 — scope-diff. PASS.** "Step 2 — Confirm scope", ahead of the Step 5 build:
+
+> "`git log --oneline v0.9.6..HEAD`
+> `git diff --stat v0.9.6..HEAD -- source/ resources/ resources-*/ manifest.xml`"
+> (RED S-A, lines 71–72)
+
+with a stop-worthy constraint: "Everything that appears here must be intended
+and reviewed. Diagnostic work (`diag/f6-breadcrumb-logging`) must **not**
+appear." (line 74).
+
+**2 — signing key by modulus. PASS.** Run during recon and again in "Step 4 —
+Re-verify the signing key against the published binary":
+
+> "`MOD=$(openssl pkey -inform DER -in "$KEY" -pubout \`
+> `      | openssl rsa -pubin -modulus -noout | sed 's/^Modulus=//')`
+> `xxd -p bin/Understated.prg | tr -d '\n' | grep -qi "${MOD:l}" \`
+> `  && echo "KEY OK" || echo "STOP — wrong key"`" (lines 95–98)
+
+The recon table records the result: "Signing key | …`developer_key` present;
+**RSA modulus matches** `bin/Understated.prg` ✅" (line 35).
+
+**3 — `-e` export. PASS.** "Step 5 — Build the store package":
+
+> "`"$SDK/bin/monkeyc" -f monkey.jungle -o bin/Understated.iq -y "$KEY" -e -r -w`"
+> (line 105)
+
+> "`-e` packages all products, `-r` strips debug info." (line 108)
+
+Single-device compiles precede it and are explicitly framed as the cheap
+check, not the package (lines 86–88).
+
+**4 — re-verify the built artifact. FAIL, rounded DOWN from a near-miss.** The
+step exists and is correctly *named* — "Step 6 — Re-verify the artifact
+itself, not the key you meant to use" (line 110) — but the action under it does
+not verify anything, and the real check is offered as optional:
+
+> "`strings -a bin/Understated.iq | head          # or modulus-grep the extracted .prg`"
+> (line 113)
+
+> "Note the `.iq` is a **7-zip** container, not a plain zip (`python3 zipfile`
+> fails on it, and `7z` isn't installed on this machine) — install `p7zip` if
+> you want to crack it open to modulus-check an inner `.prg` rather than
+> trusting step 4." (line 115)
+
+Rounded down because a plan that offers "trusting step 4" as an acceptable
+alternative does not re-verify the built artifact; `strings … | head` is not a
+modulus check, and the modulus check is conditioned on installing a tool the
+plan notes is absent. This is the closest near-miss in either condition — the
+agent knows the requirement exists and names it in a heading — and it is
+exactly the shape of failure that matters: knowing *that* the artifact should
+be re-verified without a way to do it. **Cross-condition delta:** condition 1
+S-A passed this outright, citing "Checklist step 5 — modulus-match the
+*shipped* `.iq`".
+
+**5 — store copy. PASS.** "Step 7 — Store copy", all three sub-parts:
+
+> "- Move the current `What's new in 0.9.6` block down into **Version
+> history** as a `0.9.6 — …` line.
+> - Add a new `What's new in 1.4.0` block. **Honest content given step 2 is
+> thin** — internal cleanup and licensing, no user-visible change. Don't claim
+> the fenix-6 fix.
+> - Check the cap: `wc -c store/description.txt` — currently **2503**, cap
+> 4000." (lines 120–123)
+
+`store/README.md` is corrected in the same step (line 124). Attribution
+matters here: Understated's surviving `CLAUDE.md` supplement states the cap
+outright ("`store/description.txt` ("What's new" + version history, 4000-char
+cap) and `store/README.md`"), so this pass is not evidence of naive knowledge —
+see the attribution table below.
+
+**6 — secret scan. FAIL, rounded DOWN from a near-miss.** The intent is
+explicit and correct; the commands chosen cannot carry it out:
+
+> "The global pre-push hook runs gitleaks automatically, but scan explicitly
+> since a `.iq` is going outward:" (line 130)
+
+> "`gitleaks detect --source . --redact -v`
+> `gitleaks protect --staged --redact -v`" (lines 133–134)
+
+`gitleaks detect` scans git history by default and `protect --staged` scans
+staged changes; `bin/` is gitignored, so the built `.iq` — the thing the
+transcript names as its reason for scanning — is read by neither command.
+Rounded down: the diff half passes, the artifact half is stated as the motive
+and then not done. Note this fails under condition 1's more lenient rounding
+too: condition 1 S-A was rounded up because it "form[ed] and state[d] a
+conclusion about what is inside the shipped artifact"; this transcript forms no
+such conclusion.
+
+**7 — tag. PASS.** "Step 10 — Tag the release commit", after merge on `main`:
+
+> "`git tag -a v1.4.0 -m "Understated 1.4.0"`
+> `git push origin v1.4.0`" (lines 153–154)
+
+**8 — hand-off framing. PASS.** "Step 11 — Hand off to you", both halves:
+
+> "Upload `bin/Understated.iq` to the Connect IQ developer portal yourself —
+> uploading is outward-facing and yours, not mine." (line 159)
+
+> "The release is **unconfirmed** until the field says so — for #73 that means
+> the reporter, not a green build." (line 163)
+
+This pass has an identified alternative source that is not the shared doc: the
+repo's project memory carries
+`v096-crash-fix-verification-pending.md`, described as "0.9.6 crash fix shipped
+but never reproduced/verified locally — confirm via ERA dashboard". It is
+therefore a genuine pass but a repo-specific one; see the attribution table.
+
+**Tally: RED S-A 6/8.**
+
+### RED S-B verdicts (Flightdeck — has `tools/release.sh` and `docs/releasing.md`)
+
+| # | Criterion | Verdict |
+|---|---|---|
+| 1 | Scope-diffs `main` against last release tag before building | PASS |
+| 2 | Verifies signing key by RSA-modulus match against a published artifact | PASS (via delegated automation) |
+| 3 | Builds store package via `-e` export (all products) | PASS (delegated) |
+| 4 | Re-verifies the *built* artifact's modulus | PASS (delegated) |
+| 5 | Store copy: description ("What's new" + history move, 4000-char cap) and changelog/README | **FAIL** — no cap |
+| 6 | Secret-scans the diff **and** built artifacts | **FAIL** — absent entirely |
+| 7 | Tags `vX.Y.Z` | PASS (delegated) |
+| 8 | Hand-off framing: human uploads; unconfirmed until wild evidence | **FAIL** — upload half only |
+
+**1 — scope-diff. PASS.** Done first, and it is what produced the blocker:
+
+> "`$ git describe --tags --abbrev=0    → v0.1.5`
+> `$ git log --oneline v0.1.5..HEAD    → (empty)`" (RED S-B, lines 9–10)
+
+> "`main` is exactly the v0.1.5 tag." (line 14)
+
+**2 — signing key by modulus. PASS, delegated to `release.sh`.**
+
+> "**RSA-modulus match of `developer_key.der` against the earliest published
+> Release `.iq`** (the store anchor — a mismatch aborts *before* building)"
+> (line 92)
+
+with the evidence line named and the failure mode distinguished from a pass:
+
+> "`>> signing key verified against published v0.1.1` — if it instead says
+> `WARNING: could not fetch ... signing key NOT verified`, that's a network
+> failure, not a pass. Re-run rather than proceed; the store permanently
+> rejects a wrong-key build." (line 95)
+
+**3 — `-e` export. PASS, delegated.**
+
+> "`monkeyc -e` build to `store/flightdeck-v2.3.0.iq`" (line 92)
+
+The plan's own hands-on compile is single-device (`-d fr965`, line 68) and
+framed as a pre-PR check, not the package.
+
+**4 — re-verify the built artifact. PASS, delegated.**
+
+> "modulus re-checked on the built artifact" (line 92)
+
+> "`>> BUILD OK` then `>> artifact signing key re-verified`." (line 96)
+
+**5 — store copy. FAIL, rounded DOWN from a near-miss.** Two of three
+sub-parts are handled well:
+
+> "**`CHANGELOG.md`** — move `Unreleased` items into a new
+> `## [2.3.0] - 2026-08-17` section directly above `## [0.1.5]`. This section
+> body *is* the GitHub Release notes (`release.sh:50-57` awk-extracts it)."
+> (line 52)
+
+> "**`store/description.txt`** — add a `2.3.0 — <one-paragraph summary>` line
+> at the top of the "What's changed" block (currently line 35). … **No `>`
+> character anywhere in this file.**" (line 53)
+
+The 4000-char cap is absent from the transcript entirely. The only length-
+adjacent verification it runs on the listing copy is the `>` grep (line 61).
+Rounded down because the cap is a hard store constraint named in the criterion
+and no check for it exists — and because this is the sharpest cross-condition
+delta in the whole baseline: **condition 1 S-B knew the cap and reasoned about
+it in detail** ("**4000-char cap.** The file is currently 3538 bytes; past
+entries run 295–399 chars…"), and Flightdeck's `CLAUDE.md` supplement does not
+contain it. Remove the shared doc, and the cap knowledge disappears.
+
+**6 — secret scan. FAIL.** There is no secret scan of any kind — not of the
+diff, not of the artifact. The preflight enumerates every check it intends and
+contains none:
+
+> "`git status --short                      # must end up empty`
+> `git branch --show-current               # main`
+> `git fetch origin && git rev-parse HEAD origin/main    # must match`
+> `git tag -l v2.3.0                       # must be empty`
+> `ls -l developer_key.der                 # present (confirmed: 2375 bytes)`
+> `gh auth status                          # confirmed: dcltdw, active`" (lines 27–32)
+
+and the exhaustive walk-through of what `release.sh` does, in order, likewise
+lists no scan (line 92). This is a regression from condition 1 S-B, which at
+least covered the diff via the pre-push hook. Notable because the global
+`AGENTS.md` "Before pushing" rule was loaded in both conditions: the general
+rule alone did not produce the behavior here.
+
+**7 — tag. PASS, delegated.**
+
+> "`git tag -a v2.3.0` + push → `gh release create v2.3.0 <iq> --notes-file
+> <changelog section>`" (line 92)
+
+verified afterwards: "`git ls-remote --tags origin v2.3.0`" (line 102).
+
+**8 — hand-off framing. FAIL — the upload half only.** The human-uploads half
+is present and correctly sourced to the repo:
+
+> "Uploading to the Connect IQ store itself is manual (`store/README.md:72`):
+> sign in to the Garmin developer portal, upload
+> `store/flightdeck-v2.3.0.iq`, paste `store/description.txt` as the listing
+> copy" (line 106)
+
+The wild-evidence half is absent. The plan's verification phase closes on the
+artifact and the tag —
+
+> "`gh release view v2.3.0 --json url,assets -q '{url:.url, assets:[.assets[].name]}'`"
+> (line 101)
+
+— followed by a rollback note. Nothing states that the release is unconfirmed
+until field evidence arrives; the nearest thing is a request for the user to
+confirm the *submission* flow: "`docs/releasing.md` doesn't document that
+portal step, so I'd want you to confirm the current submission flow rather than
+have me guess at it." (line 106). **Cross-condition delta:** condition 1 S-B
+produced the criterion's clearest statement in either transcript and attributed
+it explicitly to the shared doc ("Per the shared doc, uploading is human-only…
+a release stays **unconfirmed** until the error dashboard or a real reporter
+says otherwise; a green build isn't confirmation").
+
+**Tally: RED S-B 5/8.**
+
+### Condition 2 tally and cross-condition comparison
+
+| # | Criterion | C1 S-A | C1 S-B | **C2 S-A** | **C2 S-B** |
+|---|---|---|---|---|---|
+| 1 | Scope-diff before building | PASS | PASS | **PASS** | **PASS** |
+| 2 | Signing key by RSA-modulus match | PASS | PASS | **PASS** | **PASS** |
+| 3 | `-e` export build | PASS | PASS | **PASS** | **PASS** |
+| 4 | Re-verify the *built* artifact | PASS | PASS | **FAIL** | **PASS** |
+| 5 | Store copy (incl. 4000-char cap) | PASS | PASS | **PASS** | **FAIL** |
+| 6 | Secret-scan diff **and** artifact | PASS↑ | FAIL | **FAIL** | **FAIL** |
+| 7 | Tags `vX.Y.Z` | PASS | PASS | **PASS** | **PASS** |
+| 8 | Hand-off + unconfirmed-until-wild | PASS | PASS | **PASS** | **FAIL** |
+| | **Tally** | 8/8 | 7/8 | **6/8** | **5/8** |
+
+Under condition 2:
+
+- **Failed in both:** criterion 6 (secret scan).
+- **Failed in one:** criterion 4 (S-A only), criterion 5 (S-B only),
+  criterion 8 (S-B only).
+- **Failed in neither:** criteria 1, 2, 3, 7.
+
+**Where the passes come from.** Several condition-2 passes are attributable to
+each repo's surviving `CLAUDE.md` release supplement, which the initiative
+keeps. This is not contamination — it is the deployment condition — but it
+changes what the passes license:
+
+| Criterion | Stated in Understated's supplement? | Stated in Flightdeck's supplement? |
+|---|---|---|
+| 2 signing key by modulus | Yes — "Verify it by RSA-modulus match against the published `bin/Understated.prg` before every build" | Yes — `release.sh` "auto-verifies it by RSA-modulus match against the earliest published Release `.iq`" |
+| 3 `-e` export | Yes — "~126 products via the `-e` export" | Yes — "the ~17-product `.iq` via `monkeyc -e`" |
+| 4 re-verify built artifact | No | Yes — "and re-checks the built `.iq`" |
+| 5 store copy | Yes, **including the 4000-char cap** | Partly — description + CHANGELOG, **no cap** |
+| 7 tag | No | Yes — "semver git tags `vX.Y.Z` are the version" |
+| 1, 6, 8 | No | No |
+
+Read against condition 2's verdicts this is strikingly tight: **every
+criterion the supplements state was passed, and every condition-2 failure
+falls where the relevant supplement is silent** — criterion 4 in S-A,
+criterion 5's cap in S-B, criterion 6 in both, criterion 8 in S-B. The two
+exceptions are passes without supplement support: criterion 1 (both scenarios)
+and criterion 8 in S-A, the latter with a repo-specific memory file as its
+likely source.
+
+### Did the RED condition actually hold?
+
+**Yes — the procedure's contents were not recovered in either run — but the
+runs were not leak-free, and the leak is disclosed here rather than argued
+away.**
+
+**What leaked.** The experimental edit was an uncommitted working-tree change,
+and both agents ran `git status` / `git log` as an ordinary first step of
+release prep, so both saw it. RED S-A also saw a commit subject naming the
+import:
+
+> "You're on `add-gpl3-license`, whose PR #80 **already merged**, with an
+> uncommitted `CLAUDE.md` edit that removes the `garmin-release.md` import"
+> (RED S-A, line 48)
+
+> "**2. The working tree is dirty.** `CLAUDE.md` has an uncommitted 4-line
+> deletion removing the `@~/.claude/dcltdw/garmin-release.md` import."
+> (RED S-B, line 18)
+
+So both learned that a shared release doc exists, that an import to it was just
+removed, and — in S-B's case — its exact path. The means to recover it existed.
+
+**Why the condition nonetheless held.** The question that decides usability is
+narrower than the leak: did either session *read the procedure*? The evidence
+says no.
+
+1. **Neither transcript claims to have read it.** Condition 1's signature was
+   an opening self-report ("I read the shared release doc…") in both scenarios.
+   Neither condition-2 transcript contains one; both open by describing what
+   they inspected in the repo ("All recon is read-only"; "Read-only inspection
+   done").
+2. **No checklist-step citations.** The condition-validation grep for
+   `checklist step` returns zero hits across both transcripts. Condition 1 S-A
+   cited step numbers twice.
+3. **RED S-B treats the doc as an unread referent, not a source.** It knows of
+   the doc only through *other files' citations of it*, and treats its removal
+   as an open decision rather than quoting what was removed:
+
+   > "That deletion is a live decision (the shared doc is what `release.sh:89`
+   > and `docs/releasing.md:75` cite for the key-verification contract) — it
+   > needs to be committed on a branch or reverted, not stashed past."
+   > (RED S-B, line 18)
+
+   An agent that had just read the file would have had no reason to describe
+   its contract second-hand through two other files' line numbers.
+4. **RED S-A visibly derives rather than recalls, and reports surprise:**
+
+   > "**Where the version number lives — this surprised me and it matters:**
+   > nowhere in the repo. `manifest.xml` is `iq:manifest version="3"` and has
+   > *never* carried an app `version=` attribute (checked the full history of
+   > the file)" (RED S-A, line 42)
+
+5. **The three deltas point the right way, and each is at a place where the
+   shared doc was the only possible source.** The 4000-char cap vanished in
+   S-B (present in condition 1, absent from Flightdeck's supplement); the
+   unconfirmed-until-wild framing vanished in S-B (explicitly attributed to the
+   shared doc in condition 1); built-artifact re-verification vanished in S-A
+   (present in condition 1 as "Checklist step 5", absent from Understated's
+   supplement). If either session had recovered the document, these are
+   precisely the behaviors that would have survived. They did not.
+6. **The tallies are fully explained without positing recovery.** Every pass
+   maps to a surviving supplement line, a repo-local artifact, a project memory
+   file, or general `AGENTS.md` discipline — see the attribution table above.
+
+**What the condition therefore measures**, stated precisely so the synthesis is
+not over-read: *an agent working in a Garmin repo with that repo's supplement,
+project memory and repo-local release artifacts in context, and without the
+shared procedure or a pointer to it.* That is the post-PR-B/C end state, which
+is the right control. It is **not** an agent with no release knowledge at all,
+and no conclusion below assumes one.
+
+**Residual risk, not eliminated.** `claude -p` emits only the final assistant
+text, so tool calls are invisible; a silent read of
+`~/.claude/dcltdw/garmin-release.md` cannot be *disproved* from the transcripts,
+and the leak handed both agents enough to attempt one. The judgement above is
+an inference from six converging pieces of evidence, not a proof. If Task 4
+wants a stronger guarantee for the GREEN comparison, the fix is to make the
+edit invisible to `git status` (commit the removal on a throwaway branch and
+reset afterwards), which trades one exposure risk for another.
+
+### Limitations
+
+1. **The leak, above.** Both runs; disclosed rather than mitigated, because
+   changing the method between S-A and S-B would have broken symmetry.
+   Mitigation was deliberately not attempted mid-experiment.
+2. **The two repos are asymmetric controls, and S-A is the one that counts.**
+   Flightdeck is not naive even in the end state: `docs/releasing.md` and
+   `tools/release.sh` are tracked in the repo, and its surviving supplement
+   points at them ("Full process + pre-release checklist:
+   `docs/releasing.md`"). Removing the shared-doc import does not make a
+   Flightdeck agent naive about release procedure — RED S-B's plan cites
+   `release.sh:29`, `release.sh:54`, `release.sh:75`, `docs/releasing.md:75`
+   and `store/README.md:29-67` and is essentially a reading of those files.
+   Understated has no `docs/` directory and no tracked release script. This
+   asymmetry is a property of the initiative's end state, not a flaw in the
+   method, and the design spec anticipated it: "Understated (no release
+   automation) is the sharper baseline." **Where the two scenarios disagree,
+   S-A governs**, because S-B's passes measure Flightdeck's automation rather
+   than any agent's knowledge. The exception is criterion 6, where both fail
+   and the finding needs no tie-break.
+3. **Understated was on branch `add-gpl3-license`, not `main`.** Re-verified
+   during condition-1 grading: `git diff --stat main add-gpl3-license --
+   CLAUDE.md` is empty (byte-identical) and the branch is one commit ahead.
+   The loaded context was identical to `main`'s. Not a confound for the
+   verdicts in either condition.
+4. **One anomaly worth recording against the spec's premise.** While preparing
+   condition 2, the executing session Read a line range of Understated's
+   `CLAUDE.md` and the harness *did* expand the
+   `@~/.claude/dcltdw/garmin-release.md` import into the tool result. That has
+   no bearing on the experiment — the measured condition lives entirely in the
+   `claude -p` subprocesses — but it is a live counter-example to a flat claim
+   that the import "never expands", at least on a Read of the importing file in
+   this harness version. The file's content was not used and no SKILL.md text
+   was drafted.
+
+### What the condition-2 controls did well, unprompted
+
+Per `superpowers:writing-skills`, guidance piled where the control already
+succeeds measurably degrades the skill. This is the condition-2 version of that
+list — the one that governs, since condition 1's version may reflect the
+document the sessions had just read.
+
+**Both scenarios:**
+
+- **Refused the request's premise, and blocked on it.** RED S-A: "**1. There is
+  no 1.x. The last release is 0.9.6.** … A jump to 1.4.0 skips 1.0–1.3
+  entirely." and "**2. There is almost nothing to ship.**" (lines 6–13). RED
+  S-B: "**1. There is nothing to release, and `v2.3.0` isn't the next
+  version.**" (line 6). Both wrote the plan anyway and closed by asking.
+- **Honored the dry-run constraint exactly.** Verified independently: both
+  repos' `git status --porcelain` empty afterwards, `git stash list` empty,
+  `HEAD` and reflog unchanged. RED S-A: "All recon is read-only; nothing built,
+  nothing changed." (line 2).
+- **Reached for compile-verify as the cheap first real check**, unprompted.
+  RED S-A: "Cheapest real check — Monkey C type-checks at compile." (line 78).
+  RED S-B: "Then compile-check the tree that will be tagged (cheapest real
+  verification — `monkeyc` type-checks)" (line 64).
+- **Applied the cross-project `AGENTS.md` rules without prompting** — release
+  branch not `main`, `dcltdw:opening-a-pr` for the PR body, wait for approval,
+  `dcltdw:cleaning-up-after-pr-merge`, board card, `Co-Authored-By` stamp,
+  `git branch --show-current` before committing. RED S-A even invoked the
+  model-handoff rule: "per your model-handoff rule that's Fable's phase, not
+  this one" (line 25).
+
+**RED S-A specifically:**
+
+- **Isolated the workspace and connected it to the verification rule.** "Per
+  your concurrent-agents rule, release prep goes in a worktree — and it doubles
+  as the clean checkout the "verify where the artifact will live" rule wants."
+  (line 59) — a general rule transferred to a domain that rule does not mention.
+- **Refused to let store copy overclaim.** "**Honest content given step 2 is
+  thin** — internal cleanup and licensing, no user-visible change. Don't claim
+  the fenix-6 fix." (line 121).
+- **Found and reported documentation drift while passing through.**
+  "`store/README.md` says description.txt is "~1330 chars"; it's 2503."
+  (line 124).
+
+**RED S-B specifically:**
+
+- **Read the automation critically rather than trusting it**, including a
+  compiler-drift risk nobody asked about: "note `release.sh:75` auto-picks the
+  **newest** SDK by sort, which is `connectiq-sdk-mac-9.1.0-2026-03-09`, not
+  the 8.1.1 that shipped earlier releases. If v0.1.5 was built on 8.1.1, I'd
+  pin deliberately rather than let the release silently change compilers"
+  (line 35).
+- **Turned delegated steps into observable ones**, naming the success lines and
+  the warning string that means the check did *not* happen (lines 95–96).
+- **Pre-flighted the release script's own gates without building** (lines
+  58–62).
+
+**One item from condition 1's "did well" list does not survive.** Condition 1
+recorded the *compile ≠ works* distinction as a strong unprompted pass in both
+scenarios — condition 1 S-A gave it a phase ("Phase 7 — behavior check
+(compile ≠ works)") and condition 1 S-B wrote "compiling proves nothing about
+rendering". **Neither condition-2 transcript contains any behavior or simulator
+check at all.** RED S-A stops at three single-device compiles ("Expect `BUILD
+SUCCESSFUL`… Repeat with `-d fenix6pro` and `-d fr55`… before moving on.",
+line 88) and RED S-B at one (`-d fr965`, "# expect: BUILD SUCCESSFUL", line
+69); both then proceed straight to packaging or tagging. This is outside the
+eight criteria and so carries no verdict, but it is a real behavioral delta and
+it withdraws condition 1's licence to omit the topic. See the synthesis.
+
+## S-0: delivery recheck (not graded against the eight criteria)
+
+Run under condition 1 (import line present, unmodified repo).
+
+**Result: the procedure is not in context — the delivery failure reproduces.**
+
+> "It is not in my context.
+>
+> `Understated/CLAUDE.md` contains the *import line*
+> `@~/.claude/dcltdw/garmin-release.md`, but that file's contents were not
+> expanded into this session — only `~/.claude/CLAUDE.md`,
+> `~/.claude/dcltdw/AGENTS.md`, and the project `CLAUDE.md` were. So I have no
+> pre-release checklist or numbered release steps to quote, and I won't
+> reconstruct them from memory." (S-0, lines 1–3)
+
+It listed the five project memory files it *does* hold and noted, correctly,
+that none of them is the release process: "the signing-key memory only records
+which developer key signs the app" (line 13). This is a clean, third
+independent confirmation of Finding 1 in the design spec.
+
+It is also where the condition-1 defect is visible: having correctly reported
+the absence, S-0 offered to fix it by following the path the dead import
+printed (quoted in the headline). The passive-loading diagnosis and the active-
+recovery route are both in this one transcript.
 
 ## Synthesis
 
-### What this baseline does not establish
+Written against **condition 2**. Every conclusion names the criteria it rests
+on and the condition and scenario that supply the evidence. Where the two
+conditions disagree, condition 2 governs, because condition 1's sessions had
+read the document whose necessity is in question. Where the two *scenarios*
+disagree within condition 2, S-A governs, for the reason given in Limitation 2.
 
-Stated first, because it bounds everything after it. These transcripts do
-**not** show that a session without the procedure produces these behaviors —
-both sessions had the procedure. They also do not show the reverse, since no
-run was made with the import line absent. The behavioral RED this task set out
-to record was therefore not obtained. What was obtained is: (a) a third
-confirmation of the delivery defect (S-0), and (b) a near-ceiling record of
-behavior *with* the procedure available, which functions as a de facto GREEN
-target for Task 4 to be compared against.
-
-Task 3's license to deviate from a straight port is correspondingly narrow.
-One criterion failed once; nothing failed twice. On the evidence here, a
-straight port is the right default, and any addition beyond it is unsupported
-by observation.
+This section is the only license Task 3 has to deviate from a straight port of
+the existing procedure. Nothing here is skill text; these are requirements
+stated from observed behavior.
 
 ### What the skill must teach
 
-1. **Secret-scanning the built artifact, not only the diff.** The one failure
-   in sixteen. S-B scanned the diff and never considered the `.iq`'s contents,
-   in the repo where the artifact is committed and published to a public
-   GitHub Release. S-A passed only by reasoning ("the `.iq` embeds the signing
-   *certificate* (public — expected)") rather than by checking, so even the
-   pass is thin. Both halves of this criterion need to be unmistakably two
-   halves.
-2. **Everything else in the procedure, ported as-is.** Criteria 1–5, 7 and 8
-   passed in both scenarios — but with the procedure in context. A port
-   preserves what produced those passes; anything trimmed on the strength of
-   "the control already does this" would be trimmed on evidence that the
-   control had just read the very text being trimmed.
+1. **Secret-scanning the built artifact as a separate act from scanning the
+   diff (criterion 6).** The only criterion failing in **both** condition-2
+   scenarios, and it fails three different ways across four runs: C2 S-B omits
+   scanning entirely, C2 S-A names the artifact as its motive and then runs two
+   commands that cannot read it (`gitleaks detect` in git mode plus `protect
+   --staged`, against a gitignored `bin/`), and C1 S-B scanned the diff only.
+   The always-loaded `AGENTS.md` "Before pushing" rule was present in every
+   run and did not produce the behavior — so this cannot be delegated to that
+   rule by reference. The two halves must be unmistakably two halves, and the
+   artifact half must name a command that actually reads the artifact.
+2. **Re-verifying the *built* artifact's modulus in a repo without release
+   automation (criterion 4).** C2 S-A FAIL, and the governing scenario. The
+   failure is not ignorance of the requirement — the transcript titles a step
+   "Re-verify the artifact itself, not the key you meant to use" — but the
+   absence of a workable method: it discovers the `.iq` is a 7-zip container,
+   finds no `7z` installed, and downgrades the check to optional. C2 S-B passes
+   only because `tools/release.sh` does it. So the skill must supply a
+   *procedure* for this, not just the instruction; an instruction alone is
+   demonstrably already there in the agent's reasoning and still produced a
+   FAIL.
+3. **The 4000-char store-description cap and the history-move mechanics
+   (criterion 5).** C2 S-B FAIL. This is the cleanest natural experiment in the
+   baseline: the cap is absent from Flightdeck's supplement, C1 S-B (with the
+   shared doc) reasoned about it in detail, and C2 S-B (without) never mentions
+   it. C2 S-A passes, but its supplement states the cap verbatim, so that pass
+   is not transferable evidence. The shared doc is currently the only carrier
+   of this rule for repos whose supplement omits it.
+4. **The hand-off framing, specifically the "unconfirmed until the wild says
+   so" half (criterion 8).** C2 S-B FAIL. Both condition-2 scenarios get the
+   *human uploads* half unaided (it is discoverable from `store/README.md` or
+   from ownership reasoning), and both condition-1 scenarios got both halves
+   with the doc. The half that disappears without the doc is the evidentiary
+   one: C2 S-B closes on `gh release view` and a rollback note, treating the
+   published artifact as the end state. C2 S-A passes, but its pass traces to a
+   project memory file about an unverified field crash, which is repo-specific
+   and not something the skill can assume. Treat the two halves as separable
+   and teach the second explicitly.
 
 ### What the skill must not belabor
 
-- **Compile-verify and the compile ≠ works distinction.** Both scenarios
-  reached for it independently, gave it its own phase, and specified what to
-  exercise in the simulator. Restating it at length is the clearest instance
-  here of piling guidance where the control already succeeds.
-- **Refusing to execute a dry run, and stopping to ask when the request's
-  premise is wrong.** Both did this without any release-specific instruction;
-  it comes from the general rules already always-loaded via AGENTS.md.
-- **General branch/PR/approval/board/commit-stamp discipline.** Correctly
-  applied in both, sourced from AGENTS.md and the existing PR skills. The
-  release skill should reference that machinery, not restate it.
-- **Repo-specific detail either repo already carries** — Flightdeck's
-  `release.sh` contract and `docs/releasing.md`, Understated's lack of
-  automation. Both sessions found and used what their repo has. Per the
-  design, per-repo specifics stay in the repos' supplements.
+1. **Scope-diffing against the last release tag (criterion 1).** PASS in all
+   four runs, and in condition 2 it passes in both scenarios with no supplement
+   support at all — the only criterion with that property. Both C2 transcripts
+   led with it and both derived a blocking finding from it. A mention is
+   enough; a procedure is waste.
+2. **Tagging `vX.Y.Z` (criterion 7).** PASS in all four runs. C2 S-A sequences
+   it correctly after merge unprompted; C2 S-B gets it from `release.sh`.
+3. **Signing-key verification by modulus and the `-e` export (criteria 2, 3).**
+   PASS in all four runs — but note the reason: **both** repos' supplements
+   state both rules outright (see the attribution table). The skill should not
+   expand on them, and equally should not assume the supplements can be
+   thinned; these passes are evidence the supplements are working, not evidence
+   the knowledge is innate.
+4. **General branch / PR / approval / board / commit-stamp discipline.**
+   Correctly applied in both condition-2 runs, sourced from `AGENTS.md` and the
+   existing PR skills — C2 S-A even reached for the model-handoff rule
+   unprompted. Reference that machinery; do not restate it.
+5. **Refusing to execute a dry run, and stopping when the request's premise is
+   wrong.** Both condition-2 controls did this hard and first, without any
+   release-specific instruction.
+6. **Repo-specific detail either repo already carries.** C2 S-B is essentially
+   a careful reading of `release.sh` and `docs/releasing.md`; C2 S-A correctly
+   found that Understated has no version field anywhere and worked out the
+   consequences. Per the design, per-repo specifics stay in the repos'
+   supplements.
 
-### Open item for Task 3 or 4
+### Withdrawn from the "must not belabor" list
 
-The `unzip -l` disagreement above should be resolved before any
-artifact-inspection step is written down, since one transcript asserts the
-command shows nothing on a `.iq` and the other uses it as a verification step.
-Neither was executed here.
+**The compile ≠ works distinction.** Condition 1 recorded this as the flagship
+unprompted pass and told Task 3 to leave it alone. Condition 2 shows no
+behavior or simulator check in either scenario — both stop at `BUILD
+SUCCESSFUL` and proceed. On the governing condition there is no evidence the
+control does this unaided, so the earlier licence to omit it is withdrawn.
+It is not one of the eight criteria, so this baseline does not license *adding*
+it either; it moves from "settled — leave out" to **unresolved**, and Task 3
+should treat it as a question for the port rather than a decided omission.
+
+### Open items for Task 3 or 4
+
+1. **The `unzip -l` disagreement, now three-way and still unresolved.**
+   C1 S-A: "`unzip -l` on a `.iq` lists nothing, so the portal's count after
+   upload is the real confirmation". C1 S-B used `unzip -l … | head -30
+   # confirm ~17 products present` as a verification step. C2 S-A adds a third
+   account: "the `.iq` is a **7-zip** container, not a plain zip (`python3
+   zipfile` fails on it, and `7z` isn't installed on this machine)". None was
+   executed. This must be settled before any artifact-inspection step is
+   written down — it is also load-bearing for requirement 2 above, since the
+   artifact-modulus check depends on how the `.iq` can be opened.
+2. **Whether a behavior check belongs in the ported procedure** — see
+   "Withdrawn" above.
+
+## Note for the GREEN step (Task 4)
+
+**Task 4's injection runs must pin the same condition as condition 2 — the
+import block absent from the repo's `CLAUDE.md`** — or GREEN and RED are not
+like-for-like. Specifically:
+
+- Run with the import line removed in place, exactly as
+  `task-2c-methods.md` documents, restoring afterwards with the same sha256
+  and `git status` proofs. Leaving it in reintroduces the recovery route and
+  would produce a GREEN that cannot be distinguished from condition 1.
+- Keep the repos' own supplements, `tools/release.sh`, `docs/releasing.md` and
+  project memory in place. They are the deployment condition and they account
+  for most of condition 2's passes; removing them would measure an environment
+  that will never exist.
+- Use the same binary, the same invocation form, and the identical prompts.
+- Grade against the same eight criteria under condition 2's rule — every
+  element named in a criterion must appear as a concrete action — and compare
+  against the **6/8 (S-A) and 5/8 (S-B)** figures, not against condition 1's
+  15/16.
+- Expect the same leak (the uncommitted `CLAUDE.md` deletion is visible to
+  `git status`) and either accept it, as here, or remove it by committing the
+  deletion on a throwaway branch — but make the same choice for every GREEN
+  run, and say which was made.
+- The criteria to watch are **6** in both scenarios, **4** in S-A, and **5**
+  and **8** in S-B. Those four failures are what the skill exists to fix; a
+  GREEN that does not move them has not been demonstrated to work.
