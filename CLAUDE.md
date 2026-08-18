@@ -20,8 +20,8 @@ too — `core.hooksPath` points at `$LINK/githooks` — so it does *not* need a
 version bump.
 
 Full adopter-facing version of this: `claude/ADOPTING.md`.
-Specs and plans live in `docs/superpowers/`, dated in their filenames — the
-newest plan is the current one.
+Specs, plans and baselines live in `docs/superpowers/`, dated in their
+filenames — the newest plan is the current one.
 
 ## Project board
 

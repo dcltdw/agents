@@ -121,8 +121,8 @@ marketplace metadata only — never the plugin's cached content by itself.)
 
 **Standing rule for every future change to `claude/skills/**`:** bump
 `version` in `claude/.claude-plugin/plugin.json` in the same change, or
-installed machines never see it. Edits to `AGENTS.md` or this file do **not**
-need a bump — they ship live through the symlink, not the cache.
+installed machines never see it. Edits to `AGENTS.md`, `githooks/` or this file
+do **not** need a bump — they ship live through the symlink, not the cache.
 
 ## Delivery paths
 
@@ -158,7 +158,8 @@ that driver should retire gate (2) is a decision to take deliberately, on its
 own; it is not narrowed here as a side effect of moving one file. Until then,
 read gate (2) as policy awaiting review, **not** as evidence that the symlink
 still serves per-repo conditional content — it no longer does, and per "How
-imports resolve" below it never reliably could.
+imports resolve" below the project-level import that consumed it never
+reliably worked. (The symlink delivered the file reliably; nothing loaded it.)
 
 ## Per-repo wiring
 
@@ -183,6 +184,7 @@ things to the repo's own `CLAUDE.md`:
 
    - the signing key's path, and how a session verifies it's the right key;
    - the target device list, and which device is the primary test device;
+   - where the build lands — the directory the `.iq` / `.prg` are written to;
    - where the store copy (description, changelog, screenshots) lives;
    - release quirks — anything about this app's release that has surprised
      someone before.

@@ -38,23 +38,31 @@ outward-facing and done by the human, not by Claude.
    downgrade this step — the modulus is greppable in the raw bytes:
 
    ```bash
+   IQ=<build dir>/<App>.iq   # per-repo — where the build lands is a
+                             # release-supplement fact, not a shared one
    MOD=$(openssl pkey -inform DER -in "$KEY" -pubout \
          | openssl rsa -pubin -modulus -noout | sed 's/^Modulus=//')
-   if [ ${#MOD} -lt 32 ]; then
+   if [ ! -s "$IQ" ]; then
+     echo "STOP — no artifact at $IQ; nothing was checked"
+   elif [ ${#MOD} -lt 32 ]; then
      echo "STOP — could not read the signing key; nothing was checked"
-   elif xxd -p bin/<App>.iq | tr -d '\n' | grep -qi "$MOD"; then
+   elif xxd -p "$IQ" | tr -d '\n' | grep -qi "$MOD"; then
      echo "ARTIFACT KEY OK"
    else
      echo "STOP — wrong key in the shipped .iq"
    fi
    ```
 
-   The length guard is not optional: an unset or unreadable `$KEY` leaves `MOD`
-   empty, and `grep -qi ""` matches anything — so without it this prints
-   `ARTIFACT KEY OK` having checked nothing. `-i` because `xxd` emits lowercase
+   Neither guard is optional, and they cover opposite inputs. An unset or
+   unreadable `$KEY` leaves `MOD` empty, and `grep -qi ""` matches anything — so
+   without the length check this prints `ARTIFACT KEY OK` having checked
+   nothing. A wrong or missing `$IQ` path makes `xxd` fail to stderr with empty
+   stdout, so every grep below it is vacuous — without the `-s` check the block
+   reaches a verdict on bytes it never read. `-i` because `xxd` emits lowercase
    hex and `openssl` uppercase. On NO MATCH, stop and upload nothing: the store
-   will not let a wrong-key build be undone. The same grep works on a built
-   `.prg`.
+   anchors an app to its **first version's key pair**, that anchor cannot be
+   changed later, and a build signed with anything else is rejected on upload.
+   The same grep works on a built `.prg`.
 6. **Store documents.** Update the store description, the store README, and any
    changelog — accurate to the real changes. The description has three parts and
    all three are actions:
@@ -68,7 +76,9 @@ outward-facing and done by the human, not by Claude.
 7. **Secret scan — two scans, not one.** The diff and the built artifacts are
    different surfaces and neither scan covers the other.
    - **The diff:** `gitleaks git` over the release range, or the pre-push hook /
-     a manual read of `git diff` per `AGENTS.md`.
+     a manual read of `git diff` per `AGENTS.md`. (The `git`/`dir` subcommands
+     below need gitleaks ≥ 8.19; older builds spell them `detect` / `detect
+     --no-git`.)
    - **The built artifacts:** the build directory is normally **git-ignored**, so
      git-mode gitleaks (`gitleaks git`, `gitleaks detect`, `protect --staged`)
      never reads a single byte of it. Naming the artifact as your reason for
@@ -76,8 +86,9 @@ outward-facing and done by the human, not by Claude.
      this. Scan the filesystem, and scan the package itself:
 
      ```bash
-     gitleaks dir bin/ --redact -v      # reads the text dropped beside the
-                                        # package (*-settings.json, *.debug.xml)
+     gitleaks dir <build dir>/ --redact -v   # reads the text dropped beside the
+                                             # package (*-settings.json,
+                                             # *.debug.xml)
      ```
 
      `gitleaks dir` **skips binaries**, so it does not read the `.iq` or `.prg`.
@@ -85,16 +96,23 @@ outward-facing and done by the human, not by Claude.
      the package — that's the certificate. Its *private* exponent must not be:
 
      ```bash
+     IQ=<build dir>/<App>.iq   # same per-repo path as step 5
      PRIV=$(openssl pkey -inform DER -in "$KEY" -noout -text \
             | awk '/privateExponent/{f=1;next}/^prime1/{f=0}f' | tr -d ' :\n')
-     if [ ${#PRIV} -lt 64 ]; then
+     if [ ! -s "$IQ" ]; then
+       echo "STOP — no artifact at $IQ; nothing was scanned"
+     elif [ ${#PRIV} -lt 64 ]; then
        echo "STOP — could not read the signing key; nothing was checked"
-     elif xxd -p bin/<App>.iq | tr -d '\n' | grep -qi "${PRIV:0:64}"; then
+     elif xxd -p "$IQ" | tr -d '\n' | grep -qi "${PRIV:0:64}"; then
        echo "STOP — private key material in the package"
      else
        echo "no raw private-key bytes found (detects only an uncompressed DER copy; nothing reads inside the .iq)"
      fi
      ```
+
+     Both guards are load-bearing for the step-5 reason: without them a missing
+     artifact or an unreadable key reaches the reassuring `else` having read
+     nothing.
 
      Report that verdict with its scope attached, not as "clean". It finds a
      raw DER copy of the exponent; a PEM-armored key file embedded verbatim is

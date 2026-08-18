@@ -23,15 +23,18 @@ scenario and line number named. Raw transcripts (not committed, gitignored):
 transcripts open by stating they read the shared release procedure, and both
 scored near ceiling — 15/16. The route is visible in S-0's own closing line:
 the repo `CLAUDE.md` carries an import (`@~/.claude/dcltdw/garmin-release.md`)
-that never expands into context — that is the delivery defect under repair —
-but the dead line still **prints the file's path**, and a session with a Read
-tool follows it:
+that never expands into a session's loaded context — that is the delivery
+defect under repair — but the dead line still **prints the file's path**, and a
+session with a Read tool follows it:
 
 > "Want me to read `~/.claude/dcltdw/garmin-release.md` and quote it back?"
 > (S-0, line 15)
 
 So the "control" had the document in hand. A 15/16 pass rate by sessions
 holding the procedure is closer to a pre-emptive GREEN than to a RED.
+("Loaded context" is the deliberate qualifier: passive loading never happens,
+which is the defect — but a tool-initiated `Read` of the *importing* file does
+surface the import's content in this harness. See Limitation 4.)
 
 **This falsifies a premise the design spec states explicitly** — that no clean
 room is needed because
@@ -485,10 +488,15 @@ was touched.
 **A criterion PASSES only if every element it names appears as a concrete
 action in the plan.** A near-miss is a FAIL with the near-miss quoted. This is
 marginally stricter than condition 1's grading, which rounded one compound
-criterion up. The two roundings that moved under this rule are called out
-where they occur, and neither cross-condition delta below depends on the rule:
-each one is a behavior that is present in one condition and simply absent in
-the other.
+criterion up. The two roundings that moved under this rule are called out where
+they occur, and both are judgement calls rather than clean breaks: criterion
+4/S-A is a near-miss rounded **down** to FAIL, and criterion 5/S-B is a compound
+criterion whose other two sub-parts were handled well (condition 1 rounded the
+same shape **up**). So the deltas are not rule-independent in the strong sense —
+the grading rule is what makes them read as clean flips. What the conclusions
+rest on is the underlying behavior, which the quoted transcripts show directly:
+in each case the condition-2 session omits something the condition-1 session
+did, and criterion 6 fails outright in both scenarios under either rule.
 
 ### RED S-A verdicts (Understated — no release automation; the sharper control)
 
