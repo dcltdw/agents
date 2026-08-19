@@ -27,6 +27,17 @@ time pressure this is what gets dropped first:
 Provenance especially: nothing in the request ever asks for it, so it's the
 section a fast draft skips by inventing other headings instead.
 
+## Changelog
+
+If the repo keeps a `CHANGELOG.md`, the PR carries its own entry under
+`## [Unreleased]` — Keep a Changelog categories, plus whatever house
+extensions the file already uses. The entry rides in the PR so the
+change and its record land atomically; a post-merge update would need
+its own PR under the no-commits-to-`main` rule, and that PR never gets
+opened. A change too minor for an entry (chore, CI tweak, typo) gets
+one line in the PR body saying so — a stated omission, not a silent
+one.
+
 ## Stacked PRs (base ≠ main)
 Flag a non-`main` base every time you open, present, or report on the PR —
 the flag only protects the reader if the reason behind it is checked, not
@@ -60,3 +71,4 @@ risk at open- and report-time.
 |---|---|
 | "Auto-delete/retargeting means it's safe to merge" | Retargeting moves the diff base, not the history. Check ancestry first — a squash-merged parent fails it, so its lines still show as new. |
 | "Flag the non-`main` base so it doesn't look confusing on merge" | Wrong risk. If ancestry fails, the real risk is stranded/duplicated/conflicting work — say that, so the flag actually warns. |
+| "I'll add the changelog entry once it merges" | Post-merge means another PR nobody opens. The entry rides in the PR, or the body says why none is warranted. |
