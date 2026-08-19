@@ -13,11 +13,16 @@ produced it, and an accurate account of any non-`main` base.
 ## Before opening
 1. `git checkout main && git pull` (or fetch + rebase onto `origin/main`) —
    branch off *current* `main`; confirm the work isn't already merged.
-2. Move the board card **Todo → In Progress** (if the repo has a board).
+2. Confirm the task's issue exists — the Starting-a-task rule (AGENTS.md)
+   created it before the branch; if it somehow doesn't, create it now.
+   Move its board card **Todo → In Progress** (if the repo has a board).
 
 ## PR body — five required sections, every time
 Use these headings, in this order, even for a "quick" or "small" PR — under
 time pressure this is what gets dropped first:
+- **First line, above everything:** `Closes #N` — or `Refs #N` when the PR
+  does not finish the issue. First-line placement is checkable at a glance
+  and keeps GitHub's auto-close linking working.
 - **Files changed** — every file, annotated `(new)` / `(deleted)` / `(modified)`.
 - **Work breakdown** — what changed and why, not just what.
 - **Test expectations** — only when failures are expected; omit otherwise.
