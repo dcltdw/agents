@@ -107,6 +107,27 @@ different remedies; don't let one rule blur them:
   worktree, the pointer would outlive the checkout and strand the
   machine's rule imports).
 
+## Starting a task
+Before creating the work branch, the task must have an issue, and the issue
+must be on the repo's board. In order:
+
+1. **No issue covering this task? Create one** — sized to one reviewable PR
+   (see Branches and PRs).
+2. **Find the board via the repo's linked projects** (`gh repo view
+   <owner>/<repo> --json projectsV2`). No linked board, or more than one
+   plausible candidate? **Stop and ask** — the answer may be "create one,"
+   or that an existing board is correct. Never create a board unprompted.
+3. **Creating a board (only after approval):** use the canonical schema in
+   [Project board](#project-board), and link the new project to the repo so
+   the next agent can discover it mechanically.
+4. **The PR references the issue** — `Closes #N`, or `Refs #N` when the PR
+   does not finish the issue (the `dcltdw:opening-a-pr` skill enforces
+   this).
+
+Branch creation is the anchor on purpose: it is checkable, and it exempts
+sessions that never produce a branch — a question answered, a spike
+reported.
+
 ## Branches and PRs
 - Never commit directly to `main`. Always work on a branch.
 - Open a PR and **wait for approval** before merging — don't merge your own work
@@ -118,10 +139,20 @@ different remedies; don't let one rule blur them:
 
 ## Project board
 - Track work on the project board (the PR skills say when to move cards).
-- Two terminal states: **Done** (work happened) and **Won't Do** (reviewed and
-  deliberately closed without action — always record a one-line reason). Add a
-  "Won't Do" status if the board lacks one.
-- Say **refinement** or **triage** for backlog work — never "grooming" (outdated).
+- **Canonical board schema** — the shape for any newly created board, and
+  the target when bringing an old one in line:
+  - **Status**: `Todo` / `In Progress` / `Done` / `Won't Do` — nothing
+    else. Review state lives on the PR, not in a column.
+  - **Labels**: GitHub's nine defaults plus `deferred` ("Real work,
+    deliberately parked — revisit when the need is live (not wontfix)").
+  - Repo-specific domain labels and priority schemes are repo-local —
+    fine to have, never canonical.
+- Two terminal states: **Done** (work happened) and **Won't Do** (reviewed
+  and deliberately closed without action — always record a one-line
+  reason). A board missing **Won't Do** gets it added — it is part of the
+  canonical schema.
+- Say **refinement** or **triage** for backlog work — never "grooming"
+  (outdated).
 
 ## Merging a PR, and after
 - **Before merging any PR, the moment one merges, or when judging whether a
