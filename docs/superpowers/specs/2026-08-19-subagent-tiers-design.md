@@ -1,6 +1,6 @@
 # SDD subagent tiers — design
 
-Date: 2026-08-19. Status: awaiting dcltdw's in-chat approval. Tracked as
+Date: 2026-08-19. Approved in-chat by dcltdw 2026-08-19. Tracked as
 dcltdw/agents#10. The evidence base is one measured subagent-driven-
 development run (bunnyforge #62 / dcltdw/bunnyforge#67: 10 tasks, 28
 dispatches, 2,214,265 subagent tokens).
