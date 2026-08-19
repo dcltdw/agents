@@ -86,6 +86,41 @@ an ask. The grant is in the transcript or it isn't; the session never
 self-classifies into the carve-out. Same shape as board discovery:
 stop and ask.
 
+## Subagent tiers in subagent-driven development
+
+The phase table above maps *phases of a session* to models. Subagent-driven
+development adds a second axis the table doesn't cover: within one
+execution session, which tier each dispatched **seat** gets — implementer,
+reviewer, re-reviewer. Two rules and a ceiling:
+
+- **Implementers: judgement, no fixed tier.** The right tier tracks how
+  specified the plan is. A plan carrying complete code and exact text is
+  transcription plus testing — the cheaper tier handles it, and in the
+  measured run it beat the plan when the plan was wrong. A plan written in
+  prose needs more capability in the seat.
+- **Reviewers: one tier above the implementer, as a standing rule.** Review
+  is where undirected suspicion pays, and a reviewer working only from the
+  controller's risk list inherits the controller's blind spots. When the
+  implementer already sits at the top of the seat range, the rule
+  saturates: the reviewer sits there too — never above the range — and the
+  lost capability edge is recovered with independence instead: fresh
+  context, and a brief that invites findings beyond the named risks.
+- **The ceiling: no seat runs Fable.** "One tier above" stops at the top of
+  the seat range. Fable is the design-phase model (see the table above); in
+  an execution seat it buys depth neither seat uses, at a multiple of the
+  cost. "Use the most capable model for review" is a misreading of this
+  rule, not a stricter version of it.
+
+The seat range, like the phase table, names models only as today's answer
+*(mapping current as of 2026-08)*: **Sonnet** is the floor and the default
+implementer tier; **Opus** is the top and the reviewer tier. Re-pin on
+model releases.
+
+A dispatch is a request, not an observation — the tier you ask for says
+nothing about which model actually served the seat. Stamp commit trailers
+with what was requested (the Commits rule's model trailer; provenance is
+dcltdw/agents#18).
+
 ## Handing off to another model
 When the immediate next step you recommend is switching models — "switch to X and
 do Y" as the action to take *now*, not a switch mentioned as a later step — hand
