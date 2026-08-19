@@ -59,6 +59,33 @@ boundary crossing and this rule refuses it. Put the execution style
 (subagent-driven vs inline) *inside* the handoff prompt, for the next session
 to act on.
 
+## Classification pin: doctrine takes the architectural path
+
+The brainstorming skill has every session classify a task as spike /
+bounded / architectural. One classification is not the session's to
+make:
+
+**Any diff touching the agents repo's `claude/` tree takes the
+architectural path — spec, then plan — regardless of apparent size.**
+"It's just a small doctrine edit" is not a classification argument; the
+diff paths are the classification. Everything under `claude/` deploys
+machine-globally — AGENTS.md, the skills, the pre-push hook, the plugin
+manifest — so a mis-sized change there lands in every repo at once. And
+a "bounded" label doesn't merely skip the spec: bounded means no plan
+file is ever written, which deletes the artifact handoff event 1 is
+anchored to. That is how a session slid from design approval straight
+into implementation with no spec, no plan, and no handoff — the
+artifact anchor was defeated upstream, at the arguable decision that
+determines whether the artifact ever exists. A path can't be argued
+with.
+
+**One carve-out, granted only by dcltdw.** A genuinely mechanical
+edit — a typo, a broken link — may take the bounded path only when
+dcltdw explicitly grants that for the specific change, in response to
+an ask. The grant is in the transcript or it isn't; the session never
+self-classifies into the carve-out. Same shape as board discovery:
+stop and ask.
+
 ## Handing off to another model
 When the immediate next step you recommend is switching models — "switch to X and
 do Y" as the action to take *now*, not a switch mentioned as a later step — hand
