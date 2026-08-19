@@ -27,6 +27,10 @@ Roles are the rule; the names below are only today's answer to it:
 | Brainstorming, design, exploring requirements, **writing the plan** | **Fable** |
 | **Executing a plan**, implementation, and the verification that follows | **Opus** |
 
+Phases are one axis. Seats *within* a single execution phase — subagent
+dispatches in subagent-driven development — are another; see
+[Subagent tiers in subagent-driven development](#subagent-tiers-in-subagent-driven-development).
+
 Three events end a turn. When one fires: name the model the next phase wants,
 hand over a prompt per [Handing off to another model](#handing-off-to-another-model),
 and **stop**. That prompt is the turn's entire deliverable — nothing after it,
