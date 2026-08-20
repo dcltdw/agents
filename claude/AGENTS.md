@@ -164,6 +164,20 @@ different remedies; don't let one rule blur them:
   clone's path — a checkable exception: name that state before claiming
   it. The Commits rule ("confirm you're on the intended branch") is the
   floor here, not the ceiling.
+  - **Canonical worktree location: `~/Github/.worktrees/<repo>/<branch>`**
+    — for every repo, regardless of where its clone lives. This is the
+    declared directory preference `superpowers:using-git-worktrees` honors
+    without asking (its git-fallback priority #1). The root is pinned to
+    local, unsynced disk on purpose: a clone may live inside a file-sync
+    service, and a worktree never should — sync churn on build artifacts
+    and git metadata corrupts working state. Sitting outside every repo's
+    tree, the location never triggers the skill's project-local safety
+    verification: no `.gitignore` entry, no commit to `main`
+    (dcltdw/agents#21). This governs the git-fallback path only — a native
+    worktree tool (e.g. `EnterWorktree`) owns its own placement; keep
+    preferring it. An existing project-local `.worktrees/` in a repo is
+    outranked by this declaration: don't create new ones; let old ones
+    drain via post-merge cleanup.
 - **A worktree does not isolate the machine.** Global git config,
   `~/.claude/*`, plugin caches, and install scripts are shared no matter
   where your checkout lives. Before mutating any of it: verify its
