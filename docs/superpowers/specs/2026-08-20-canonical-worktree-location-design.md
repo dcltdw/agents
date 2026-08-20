@@ -30,7 +30,7 @@ step, so the forbidden commit is structurally impossible. No skill fork;
 the declaration rides a documented extension point.
 
 The path is **fixed, not derived from the clone's location**, on purpose:
-one repo lives inside Dropbox, and worktrees must never land in a file-sync
+five repos live inside Dropbox, and worktrees must never land in a file-sync
 service — sync churn on build artifacts and git metadata corrupts working
 state. Pinning the root to local, unsynced disk is the simplest rule that
 guarantees this. It also matches the stopgap already practiced twice
@@ -59,19 +59,22 @@ tree is shared state" bullet (that bullet already points sessions at the
 skill, and is therefore the "instructions" the skill's priority #1 reads):
 
 > **Canonical worktree location: `~/Github/.worktrees/<repo>/<branch>`** —
-> for every repo, regardless of where its clone lives. This is the declared
-> directory preference `superpowers:using-git-worktrees` honors without
-> asking (its git-fallback priority #1). The root is pinned to local,
-> unsynced disk on purpose: a clone may live inside a file-sync service,
-> and a worktree never should — sync churn on build artifacts and git
-> metadata corrupts working state. Because the location sits outside every
-> repo's tree, the skill's project-local safety verification never fires:
-> no `.gitignore` entry, no commit to `main` (dcltdw/agents#21). Scope:
-> this governs the skill's git-fallback path only — a native worktree tool
-> (e.g. `EnterWorktree`) owns its own placement; keep preferring it. An
-> existing project-local `.worktrees/` in a repo is outranked by this
-> declaration: don't create new ones; let old ones drain via post-merge
-> cleanup.
+> for every repo, regardless of where its clone lives; `<repo>` is the
+> clone directory's basename. This is the declared directory preference
+> `superpowers:using-git-worktrees` honors without asking (its
+> git-fallback priority #1). The root must sit on local, unsynced disk: a
+> clone may live inside a file-sync service, and a worktree never should —
+> sync churn on build artifacts and git metadata corrupts working state.
+> On a machine where `~/Github` is itself inside a sync service, pick a
+> local root there instead. Sitting outside every repo's tree, the
+> location never triggers the skill's project-local safety verification:
+> no `.gitignore` entry, no commit to `main` (dcltdw/agents#21). This
+> governs the git-fallback path only — a native worktree tool (e.g.
+> `EnterWorktree`) owns its own placement; keep preferring it. An existing
+> project-local `.worktrees/` in a repo is outranked by this declaration:
+> don't create new ones; `superpowers:finishing-a-development-branch`
+> drains old ones, removing each merged worktree but not the empty parent
+> directory or a repo's gitignore line.
 
 (The plan may adjust wording for flow within the section; the semantics
 above are the approved content.)
@@ -100,8 +103,11 @@ above are the approved content.)
 - **Slashed branch names** (`feature/foo`) nest naturally under `<repo>/`.
 - **Basename collision:** two repos sharing a basename in different parents
   (a `~/Github/foo` and a Dropbox `foo`) share `~/Github/.worktrees/foo/`;
-  an actual clash requires the same branch name in both. Noted and
-  accepted, not engineered around.
+  an actual clash requires the same branch name in both. No instance on
+  this machine today — every clone basename is distinct (the apparent
+  `Dropbox/Github/mystical_ps/dmmlib` is a symlink to
+  `Dropbox/Github/dmmlib`, the same clone). Noted and accepted, not
+  engineered around.
 - **Machines without `~/Github`:** `git worktree add` creates the full
   parent chain, so the path works on first use.
 - **Non-goal — nested repos:** if a clone's parent directory is itself
@@ -114,8 +120,11 @@ Doctrine has no test suite. Verification is walking
 `superpowers:using-git-worktrees`' decision procedure as written against
 the amended AGENTS.md, in a repo whose `.gitignore` has no worktree entry,
 and confirming it terminates at the declared path with zero commits
-required. The worktree used to build this very change is the first live
-instance: created at `~/Github/.worktrees/agents/canonical-worktree-location`
-with no safety-verification step fired.
+required — that by-inspection walk is the verification of the rule. The
+worktree used to build this change sits at
+`~/Github/.worktrees/agents/canonical-worktree-location`, but it was
+created as the ad-hoc stopgap *before* the rule existed: it evidences that
+the path dodges safety verification, not that the amended AGENTS.md text
+drives a session there.
 
 The PR closes #21.
