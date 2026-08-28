@@ -15,3 +15,16 @@ across all of my repos.
 
 Extracted with history from [dcltdw/dcltdw](https://github.com/dcltdw/dcltdw)
 on 2026-08-17; that repo is now just my profile README.
+
+## License
+
+GPL-3.0-or-later — see [LICENSE](LICENSE).
+
+The repository carried no licence before, which meant "all rights reserved" by
+default; this grants rights rather than removing any. Copyleft applies to
+redistribution: a fork published to others ships its source under the same
+terms. Using these rules and skills on your own machines and repos — and
+anything your agents produce while working under them — is unrestricted.
+
+Contributions are accepted under the same licence as the project. If you are
+opening a pull request, that is the licence you are granting.

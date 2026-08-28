@@ -2,5 +2,6 @@
   "name": "dcltdw",
   "description": "Cross-project skills for dcltdw's repos: PR lifecycle and Garmin releases",
   "version": "0.4.0",
-  "author": { "name": "dcltdw" }
+  "author": { "name": "dcltdw" },
+  "license": "GPL-3.0-or-later"
 }
